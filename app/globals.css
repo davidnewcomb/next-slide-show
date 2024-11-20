@@ -11,13 +11,17 @@
   heightt: auto;
 }
 
-.status {
+.statusouter {
   position: absolute;
-  top: 30px;
-  left: 10px;
+  top: 0px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.status {
   background-color: black;
+  opacity: 0.5;
   color: white;
-  padding: 2px;
 }
 
 .full_width {

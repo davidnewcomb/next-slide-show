@@ -115,9 +115,11 @@ export default function Slideshow(props) {
 	const percentage = parseInt((currentIndex / images.length) * 100)
 
 	return (
-		<div style={{width: '100%'}}>
+		<div>
 			<progress value={percentage} max={100} style={{width: '100%'}} />
-			<div className="status">{statusText}</div>
+			<div className="statusouter">
+				<div className="status">{statusText}</div>
+			</div>
 			<img {...imgProps} />
 		</div>
 
