@@ -9,6 +9,7 @@ import {
 	SS_WIDTH_SMALLER, SS_WIDTH_BIGGER, SS_WIDTH_MAX,
 	IMAGE_CLASS_NAMES
 } from './cfg'
+import Link from 'next/link'
 
 const LONG_PAUSE = 0
 
@@ -114,11 +115,30 @@ export default function Slideshow(props) {
 	const statusText = currentIndex + ' / ' + images.length + ' : ' + images[currentIndex] + (rotate > 0 ? ' [' + rotate + 'deg]' : '') + (widthPercent !== 100 ? ` ${widthPercent}%` : '') + (timeoutValue === LONG_PAUSE ? ' [paused]' : '')
 	const percentage = parseInt((currentIndex / images.length) * 100)
 
+	const keys = [
+		{ k: SS_BACK, t: '<' },
+		{ k: SS_FORWARD, t: '>' },
+		{ k: SS_PAUSE, t: 'P' },
+		{ k: SS_WIDTH_SMALLER, t: 'v' },
+		{ k: SS_WIDTH_MAX, t: '-' },
+		{ k: SS_WIDTH_BIGGER, t: '^' },
+		{ k: SS_ROTATE_P90, t: '-90' },
+		{ k: SS_ROTATE_N90, t: '+90' },
+		{ k: SS_ROTATE_180, t: '180' }
+	]
+
 	return (
 		<div>
 			<progress value={percentage} max={100} style={{width: '100%'}} />
 			<div className="statusouter">
-				<div className="status">{statusText}</div>
+				<div className="statusinner">
+					<div className="status">{statusText}</div>
+					<div className="status">
+						{
+							keys.map((k, ki) => <Link href="#" style={{ color: 'black', textDecoration:'none' }} onClick={() => handleKeyPress({ key: k.k })}>&nbsp;{k.t}&nbsp;</Link>)
+						}
+					</div>
+				</div>
 			</div>
 			<img {...imgProps} />
 		</div>
