@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import {
 	BROWSER_IMAGE_DIR, PAUSE,
 	SS_PAUSE,
@@ -24,6 +24,17 @@ const doRotation = (currentDegs, addRotation) => {
 	return s
 }
 
+const keys = [
+	{ key: SS_BACK, title: '<' },
+	{ key: SS_FORWARD, title: '>' },
+	{ key: SS_PAUSE, title: 'P' },
+	{ key: SS_WIDTH_SMALLER, title: 'v' },
+	{ key: SS_WIDTH_MAX, title: '-' },
+	{ key: SS_WIDTH_BIGGER, title: '^' },
+	{ key: SS_ROTATE_P90, title: '-90' },
+	{ key: SS_ROTATE_N90, title: '+90' },
+	{ key: SS_ROTATE_180, title: '180' }
+]
 
 export default function Slideshow(props) {
 	const { images } = props
@@ -34,6 +45,14 @@ export default function Slideshow(props) {
 	const [loaded, setLoaded] = useState(0)
 	const [style, setStyle] = useState(0)
 	const [timeoutValue, setTimeoutValue] = useState(PAUSE)
+
+	const controlPanel = useMemo(() => (
+		<div className="controlpanel">
+			{
+				keys.map((k, ki) => <Link key={ki} href="#" onClick={() => handleKeyPress({ key: k.key })}>&nbsp;{k.title}&nbsp;</Link>)
+			}
+		</div>
+	), [])
 
 	const nextSlide = useCallback(() => {
 		setCurrentIndex((prevIndex) =>
@@ -102,7 +121,6 @@ export default function Slideshow(props) {
 		}
 	}, [loaded, style, rotate, timeoutValue, handleKeyPress, nextSlide])
 
-
 	const imgProps = {
 		src: BROWSER_IMAGE_DIR + images[currentIndex] + '?rotate=' + rotate + '&width=' + widthPercent,
 		//className: IMAGE_CLASS_NAMES[style],
@@ -115,29 +133,13 @@ export default function Slideshow(props) {
 	const statusText = currentIndex + ' / ' + images.length + ' : ' + images[currentIndex] + (rotate > 0 ? ' [' + rotate + 'deg]' : '') + (widthPercent !== 100 ? ` ${widthPercent}%` : '') + (timeoutValue === LONG_PAUSE ? ' [paused]' : '')
 	const percentage = parseInt((currentIndex / images.length) * 100)
 
-	const keys = [
-		{ k: SS_BACK, t: '<' },
-		{ k: SS_FORWARD, t: '>' },
-		{ k: SS_PAUSE, t: 'P' },
-		{ k: SS_WIDTH_SMALLER, t: 'v' },
-		{ k: SS_WIDTH_MAX, t: '-' },
-		{ k: SS_WIDTH_BIGGER, t: '^' },
-		{ k: SS_ROTATE_P90, t: '-90' },
-		{ k: SS_ROTATE_N90, t: '+90' },
-		{ k: SS_ROTATE_180, t: '180' }
-	]
-
 	return (
 		<div>
 			<progress value={percentage} max={100} style={{width: '100%'}} />
+			{controlPanel}
 			<div className="statusouter">
 				<div className="statusinner">
 					<div className="status">{statusText}</div>
-					<div className="status">
-						{
-							keys.map((k, ki) => <Link href="#" style={{ color: 'black', textDecoration:'none' }} onClick={() => handleKeyPress({ key: k.k })}>&nbsp;{k.t}&nbsp;</Link>)
-						}
-					</div>
 				</div>
 			</div>
 			<img {...imgProps} />

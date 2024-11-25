@@ -27,6 +27,21 @@
   color: black;
 }
 
+.controlpanel {
+  position: fixed;
+  top: 200px;
+  right: 100px;
+  background-color: white;
+  opacity: 0.75;
+  color: black;
+}
+
+.controlpanel > a {
+  color: black;
+  font-size: 20;
+  text-decoration: none;
+}
+
 .full_width {
   width: 100%;
 }
