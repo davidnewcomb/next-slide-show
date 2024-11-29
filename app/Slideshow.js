@@ -123,7 +123,7 @@ export default function Slideshow(props) {
 
 	const imgProps = {
 		src: BROWSER_IMAGE_DIR + images[currentIndex] + '?rotate=' + rotate + '&width=' + widthPercent,
-		//className: IMAGE_CLASS_NAMES[style],
+		className: IMAGE_CLASS_NAMES[style],
 		//style: {width: '50%'},
 		onClick: () => setStyle(s => s + 1),
 		alt: `Slide ${currentIndex + 1}`,
