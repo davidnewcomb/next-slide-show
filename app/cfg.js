@@ -1,5 +1,5 @@
 
-export const SERVER_IMAGE_DIR = '/path/to/folder
+export const SERVER_IMAGE_DIR = '/path/to/folder'
 export const BROWSER_IMAGE_DIR = '/api/img/'
 export const PAUSE = 5 * 1000
 export const IMAGE_CLASS_NAMES = ['none', 'max_width']
