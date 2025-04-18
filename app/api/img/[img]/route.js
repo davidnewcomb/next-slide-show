@@ -3,15 +3,19 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import { SERVER_IMAGE_DIR } from '/app/cfg'
 import Jimp from 'jimp'
 
-const fileToMimeType = (imagePath) => {
+const getExtn = (imagePath) => {
 	const ee = path.extname(imagePath).slice(1).toLowerCase()
 	console.log(`filename=${imagePath} ee=${ee}`)
 	if (ee === 'jpg') {
-		return 'image/jpeg'
+		return 'jpeg'
 	}
+	return ee
+}
+
+const fileToMimeType = (imagePath) => {
+	const ee = getExtn(imagePath)
 	return 'image/' + ee
 }
 
@@ -19,16 +23,18 @@ export async function GET(request, props, response) {
 	const { searchParams } = new URL(request.url)
 	const rotate = +searchParams.get('rotate') ?? 0
 	const width = +searchParams.get('width') ?? 100
+	const urlText = searchParams.get('dir') ?? ''
+	const url = decodeURI(urlText)
 
-	const {params } = props
+	const { params } = props
 
-	const {img} = params
+	const { img } = params
 
 	if (!img) {
 		return response.status(400).json({ error: 'Image name is required' })
 	}
 
-	const imagePath = path.join(SERVER_IMAGE_DIR, img)
+	const imagePath = path.join(url, img)
 
 	if (!fs.existsSync(imagePath)) {
 		return response.status(404).json({ error: 'Image not found' })
@@ -36,15 +42,25 @@ export async function GET(request, props, response) {
 
 	console.log('Load=' + imagePath)
 
-	let image = fs.readFileSync(imagePath)
+	let image
 	const ct = fileToMimeType(imagePath)
 
-	if (rotate > 0 || width !== 100) {
-		const lenna = await Jimp.read(image)
-		image = await lenna
+	const cacheFile = `${imagePath}-w${width}-r${rotate}`
+	if (fs.existsSync(cacheFile)) {
+		console.log('found cache: ' + cacheFile)
+		image = fs.readFileSync(cacheFile)
+	} else {
+		image = fs.readFileSync(imagePath)
+		if (rotate > 0 || width !== 100) {
+			const lenna = await Jimp.read(image)
+			image = await lenna
 				.rotate(rotate)
-				.scale(width/100)
+				.scale(width / 100)
 				.getBufferAsync(ct)
+			console.log(`saving cache: ${cacheFile} [${image.length} bytes]`)
+			fs.writeFileSync(cacheFile, image)
+			console.log(`saved cache: ${cacheFile} [${image.length} bytes]`)
+		}
 	}
 
 	return new NextResponse(image, {

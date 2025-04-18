@@ -1,52 +1,42 @@
-.none {
-/*
-  max-width: 100%;
-  max-height: 100%;
-*/
-}
 
 .max_width {
-  display: block;
-  max-width: 100%;
-  height: auto;
+	display: block;
+	max-width: 100%;
+	height: auto;
 }
 
 .statusouter {
-  position: absolute;
-  width: 100%;
-  top: 0px;
-}
-.statusinner {
-  display: flex;
-  justify-content: space-between;
+	position: fixed;
+	top: 0;
+	left: 0;
 }
 
+
 .status {
-  background-color: white;
-  opacity: 0.75;
-  color: black;
+	background-color: white;
+	opacity: 0.75;
+	color: black;
 }
 
 .controlpanel {
-  position: fixed;
-  top: 200px;
-  right: 100px;
-  background-color: white;
-  opacity: 0.75;
-  color: black;
+	position: fixed;
+	display: flex;
+	border: 1px solid black;
+	padding: 5px;
+	top: 100px;
+	right: 100px;
+	background-color: white;
+	opacity: 0.75;
+	color: black;
 }
 
-.controlpanel > a {
-  color: black;
-  font-size: 20;
-  text-decoration: none;
-}
-
-.full_width {
-  width: 100%;
+.controlpanel > div {
+	color: black;
+	font-size: 20;
+	text-decoration: none;
 }
 
 .responsive {
-  width: 100%;
-  height: auto;
+	width: 100%;
+	height: auto;
 }
