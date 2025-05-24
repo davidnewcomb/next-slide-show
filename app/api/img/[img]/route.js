@@ -37,7 +37,9 @@ export async function GET(request, props, response) {
 	const imagePath = path.join(url, img)
 
 	if (!fs.existsSync(imagePath)) {
-		return response.status(404).json({ error: 'Image not found' })
+		const m = 'Image not found: ' + imagePath
+		console.log(m)
+		return response.status(404).json({ error: m })
 	}
 
 	console.log('Load=' + imagePath)

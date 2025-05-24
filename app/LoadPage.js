@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 const defaultCfg = {
-	style: true,
+	style: false,
 	widthPercent: 100,
 	rotate: 0,
 	scrollTop: 0,

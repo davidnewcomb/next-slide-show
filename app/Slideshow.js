@@ -97,6 +97,9 @@ export default function Slideshow() {
 
 	const rotation = useCallback((deg) => {
 		const is = {...imageState}
+		if (!is.list) {
+			return
+		}
 		is.list[currentIndex].cfg.rotate = doRotation(is.list[currentIndex].cfg.rotate, deg)
 		setImageState(is)
 	}, [currentIndex, imageState])
