@@ -7,7 +7,7 @@ import Jimp from 'jimp'
 
 const getExtn = (imagePath) => {
 	const ee = path.extname(imagePath).slice(1).toLowerCase()
-	console.log(`filename=${imagePath} ee=${ee}`)
+	console.log(`filename=${imagePath} extension=${ee}`)
 	if (ee === 'jpg') {
 		return 'jpeg'
 	}

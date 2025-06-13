@@ -22,11 +22,15 @@ const keys = [
 	{ key: SS_SWITCH_TO_FAVS, title: 'Fav', desc: 'Show favourites' }
 ]
 
+const cpStyle = 'controlpanel '
+
 export default function ControlPanel(props) {
-	const { handleKeyPress } = props
+	const { handleKeyPress, fav } = props
+
+	const style = cpStyle + (fav && 'fav')
 
 	return (
-		<div className="controlpanel">
+		<div className={style}>
 			{
 				keys.map((k, ki) => <div key={ki} onClick={() => handleKeyPress({ key: k.key })} title={`${k.desc} (${k.key})`}>&nbsp;{k.title}&nbsp;</div>)
 			}

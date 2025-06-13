@@ -106,6 +106,9 @@ export default function Slideshow() {
 
 	const width = useCallback((w) => {
 		const is = {...imageState}
+		if (!is.list) {
+			return
+		}
 		const newWidth = w === null ? 100 : is.list[currentIndex].cfg.widthPercent += w
 		is.list[currentIndex].cfg.widthPercent = newWidth
 		setImageState(is)
@@ -170,7 +173,7 @@ export default function Slideshow() {
 		console.log('onLoadHandler [' + currentIndex +'](' + imageState.list[currentIndex].cfg.scrollTop + ',' + imageState.list[currentIndex].cfg.scrollLeft + ') ')
 		document.documentElement.scrollTop = imageState.list[currentIndex].cfg.scrollTop
 		document.documentElement.scrollLeft = imageState.list[currentIndex].cfg.scrollLeft
-	}, [currentIndex, imageState]) //, document.documentElement.scrollTop, document.documentElement.scrollLeft])
+	}, [currentIndex, imageState, document.documentElement.scrollTop, document.documentElement.scrollLeft]) //, document.documentElement.scrollTop, document.documentElement.scrollLeft])
 
 	const loadObj = useCallback((obj) => {
 		setImageState(obj)
@@ -210,11 +213,11 @@ export default function Slideshow() {
 		return <LoadPage loadObj={loadObj} close={() => {
 			setLoadCfg(false)
 			//setTimeoutValue(PAUSE)
-		}} cfg={imageState?.cfg}/>
+		}} cfg={imageState?.cfg} admin={imageState?.admin}/>
 	}
 
 	if (saveCfg) {
-		return <SavePage data={imageState} close={() => {
+		return <SavePage data={imageState} loadObj={loadObj} close={() => {
 			setSaveCfg(false)
 			setTimeoutValue(PAUSE)
 		}} />
@@ -232,6 +235,7 @@ export default function Slideshow() {
 	let widthPercent = thisOneCfg.widthPercent
 	let rotate = thisOneCfg.rotate
 	let style = thisOneCfg.style
+	let isFav = thisOne.fav === true
 
 	if (imageState.list[currentIndex].src.startsWith('http')) {
 		if (widthPercent !== 100) {
@@ -268,7 +272,7 @@ export default function Slideshow() {
 		+ ' ' + styleToClass(style)
 		+ (scTop ? ' scT=' + scTop : '')
 		+ (scLeft ? ' scL=' + scLeft : '')
-		+ (imageState.list[currentIndex].fav ? ' [fav]' : '')
+		+ (isFav ? ' [fav]' : '')
 
 	const percentage = parseInt((currentIndex / imageState.list.length) * 100)
 
@@ -287,8 +291,8 @@ export default function Slideshow() {
 	return (
 		<div>
 			<ProgressBar percentage={percentage}/>
-			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} />}
-			<Status statusText={statusText} />
+			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav}/>}
+			<Status statusText={statusText} fav={isFav} />
 			<img {...imgProps} />
 		</div>
 	)

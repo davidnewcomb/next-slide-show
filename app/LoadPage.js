@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { readCfgFile } from './server'
 
 const defaultCfg = {
 	style: false,
@@ -11,14 +12,14 @@ const defaultCfg = {
 }
 
 export default function LoadPage(props) {
-	const { loadObj, close, cfg } = props
+	const { loadObj, close, cfg, admin } = props
 	const [dir, setDir] = useState('')
 	const [pattern, setPattern] = useState('')
 	const [padding, setPadding] = useState(3)
 	const [from, setFrom] = useState(1)
 	const [to, setTo] = useState(50)
 
-	const saveNew = () => {
+	const loadNew = () => {
 		let min = +from
 		let max = +to
 		if (min > max) {
@@ -39,15 +40,26 @@ export default function LoadPage(props) {
 			pattern,
 			dir
 		}
-		loadObj({cfg, list})
+		loadObj({cfg, list, admin})
 		close()
 	}
 
-	const saveExisting = (e) => {
+	const pasteExisting = (e) => {
 		const txt = e.target.value
 		const obj = JSON.parse(txt)
 		loadObj(obj)
 		close()
+	}
+
+	const loadExisting = async (e) => {
+		const filename = e.target.value
+		readCfgFile(filename)
+			.then((obj) => {
+				console.log('loadExisting=', obj)
+				loadObj(obj)
+				close()
+			})
+
 	}
 
 	useEffect(() => {
@@ -64,18 +76,36 @@ export default function LoadPage(props) {
 	return (
 		<div>
 			<h1>Load</h1>
-			<p>Paste into box and click done</p>
-			<input type="text" defaultValue="" onChange={saveExisting} />
-			<hr />
+
 			<table>
 				<tbody>
+					<tr>
+						<th>Paste into box and click done</th>
+						<td><input type="text" defaultValue="" onChange={pasteExisting} /></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<hr />
+
+			<table>
+				<tbody>
+					<tr>
+						<th>Cfg file name</th>
+						<td>{admin?.filename}</td>
+					</tr>
+					<tr>
+						<th>Cfg file updated</th>
+						<td>{admin?.updated}</td>
+					</tr>
+
 				<tr>
 					<th>Full path to files</th>
 					<td><input type="text" value={dir} onChange={(e) => setDir(e.target.value)} /></td>
 				</tr>
 				<tr>
 					<th>File pattern with %s</th>
-						<td><input type="text" value={pattern} onChange={(e) => setPattern(e.target.value)} /></td>
+					<td><input type="text" value={pattern} onChange={(e) => setPattern(e.target.value)} /></td>
 				</tr>
 				<tr>
 					<th>From</th>
@@ -90,8 +120,19 @@ export default function LoadPage(props) {
 					<td><input type="text" value={padding} onChange={(e) => setPadding(e.target.value)} /></td>
 				</tr>
 				<tr colSpan="2">
-					<td><button onClick={() => close()}>Cancel</button> | <button onClick={() => saveNew()}>Save</button></td>
+					<td><button onClick={() => close()}>Cancel</button> | <button onClick={() => loadNew()}>Load</button></td>
 				</tr>
+				</tbody>
+			</table>
+
+			<hr/>
+
+			<table>
+				<tbody>
+					<tr>
+						<th>Cfg file</th>
+						<td><input type="text" defaultValue="" onChange={loadExisting} /></td>
+					</tr>
 				</tbody>
 			</table>
 
