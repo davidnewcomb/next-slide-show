@@ -48,7 +48,7 @@ export default function LoadCfgFile(props) {
 					<td><button onClick={loadExisting}>Load</button></td>
 				</tr>
 				<tr>
-					<td><div className="errortext">{message}</div></td>
+					<td colSpan={3}><div className="errortext">{message}</div></td>
 				</tr>
 			</tbody>
 		</table>

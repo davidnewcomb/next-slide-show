@@ -145,9 +145,15 @@ export default function Slideshow() {
 			setShowFavourites( it => !it )
 		} else if (event.key === SS_CFG_LOAD) {
 			setTimeoutValue(LONG_PAUSE)
+			if (saveCfg) {
+				setSaveCfg(false)
+			}
 			setLoadCfg(true)
 		} else if (event.key === SS_CFG_SAVE) {
 			setTimeoutValue(LONG_PAUSE)
+			if (loadCfg) {
+				setLoadCfg(false)
+			}
 			setSaveCfg(true)
 		} else if (event.key === SS_CONTROL_PANEL) {
 			setShowControlPanel(it => !it)
