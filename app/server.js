@@ -9,8 +9,18 @@ export const getImages = async (folder) => {
 	return images
 }
 
-export const readCfgFile = async (filename) => {
+export const readCfgFile = (filename) => {
+	if (!fs.existsSync(filename)) {
+		return {error: true, message: filename + ' not found'}
+	}
+	if (fs.statSync(filename).size == 0) {
+		return { error: true, message: filename + ' is empty' }
+	}
 	const json = fs.readFileSync(filename)
+	console.log('Read file:' + filename)
+	console.log(json.toString())
+	console.log('---')
+
 	const obj = JSON.parse(json)
 	if (!obj.admin) {
 		obj.admin = {}

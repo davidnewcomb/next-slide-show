@@ -44,3 +44,10 @@
 .fav {
 	background-color: rgb(191, 245, 191);
 }
+
+.w100 {
+	width: 100%;
+}
+.errortext {
+	color: red;
+}

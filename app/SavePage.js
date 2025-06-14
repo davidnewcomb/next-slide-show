@@ -34,7 +34,7 @@ export default function SavePage(props) {
 	return (
 		<div>
 			<h1>Save</h1>
-			<button onClick={() => close()}>Close</button>
+			<button onClick={() => close()}>Cancel</button>
 			<hr />
 			<div style={{ width: '100%' }}>File name: <input value={filename} onChange={(e) => setFilename(e.target.value)} style={{ width: '100%' }} /></div>
 			<div>File updated: {data?.admin?.updated}</div>
