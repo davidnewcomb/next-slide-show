@@ -64,9 +64,8 @@ export default function GenerateCfgFile(props) {
 					</tr>
 					<tr>
 						<th>Cfg file updated</th>
-						<td>{admin?.updated}</td>
+						<td>{admin?.updated && admin.updated.toString()}</td>
 					</tr>
-
 					<tr>
 						<th>Full path to files</th>
 						<td><input type="text" value={dir} onChange={(e) => setDir(e.target.value)} /></td>

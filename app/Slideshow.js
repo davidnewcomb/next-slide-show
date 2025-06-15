@@ -17,7 +17,7 @@ import ProgressBar from './ProgressBar'
 import SavePage from './SavePage'
 import LoadPage from './LoadPage'
 
-const LONG_PAUSE = 0
+const PAUSED_FOREVER = 0
 
 const doRotation = (currentDegs, addRotation) => {
 	let s = currentDegs + addRotation
@@ -138,19 +138,19 @@ export default function Slideshow() {
 		} else if (event.key === SS_WIDTH_MAX) {
 			width(null)
 		} else if (event.key === SS_PAUSE) {
-			setTimeoutValue(tv => tv === LONG_PAUSE ? PAUSE : LONG_PAUSE)
+			setTimeoutValue(tv => tv === PAUSED_FOREVER ? PAUSE : PAUSED_FOREVER)
 		} else if (event.key === SS_FAV) {
 			toggleFavourite()
 		} else if (event.key === SS_SWITCH_TO_FAVS) {
 			setShowFavourites( it => !it )
 		} else if (event.key === SS_CFG_LOAD) {
-			setTimeoutValue(LONG_PAUSE)
+			setTimeoutValue(PAUSED_FOREVER)
 			if (saveCfg) {
 				setSaveCfg(false)
 			}
 			setLoadCfg(true)
 		} else if (event.key === SS_CFG_SAVE) {
-			setTimeoutValue(LONG_PAUSE)
+			setTimeoutValue(PAUSED_FOREVER)
 			if (loadCfg) {
 				setLoadCfg(false)
 			}
@@ -215,7 +215,7 @@ export default function Slideshow() {
 	}, [timeoutValue, imageState, nextSlide])
 
 	if (!imageState || loadCfg) {
-		//setTimeoutValue(LONG_PAUSE)
+		//setTimeoutValue(PAUSED_FOREVER)
 		return <LoadPage loadObj={loadObj} close={() => {
 			setLoadCfg(false)
 			//setTimeoutValue(PAUSE)
@@ -274,7 +274,7 @@ export default function Slideshow() {
 		//+ ' : ' + imageState.list[currentIndex]
 		+ (rotate > 0 ? ' [' + rotate + 'deg]' : '')
 		+ (widthPercent !== 100 ? ` ${widthPercent}%` : '')
-		+ (timeoutValue === LONG_PAUSE ? ' [paused]' : '')
+		+ (timeoutValue === PAUSED_FOREVER ? ' [paused]' : '')
 		+ ' ' + styleToClass(style)
 		+ (scTop ? ' scT=' + scTop : '')
 		+ (scLeft ? ' scL=' + scLeft : '')

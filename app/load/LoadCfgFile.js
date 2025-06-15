@@ -24,6 +24,7 @@ export default function LoadCfgFile(props) {
 			})
 			.catch((err) => {
 				console.log('ERROR: loadExisting=', err)
+				setMessage(err.toString())
 			})
 	}
 

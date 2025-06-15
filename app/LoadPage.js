@@ -13,12 +13,11 @@ export default function LoadPage(props) {
 			<h1>Load</h1>
 			<button onClick={() => close()}>Cancel</button>
 			<hr/>
+			<LoadCfgFile loadObj={loadObj} close={close} filename={admin?.filename || ''} />
+			<hr/>
 			<PasteCfgFile loadObj={loadObj} close={close} />
 			<hr />
 			<GenerateCfgFile loadObj={loadObj} close={close} cfg={cfg} admin={admin} />
-			<hr/>
-			<LoadCfgFile loadObj={loadObj} close={close} filename={admin?.filename || ''} /> 
-
 		</div>
 	)
 }

@@ -37,7 +37,7 @@ export default function SavePage(props) {
 			<button onClick={() => close()}>Cancel</button>
 			<hr />
 			<div style={{ width: '100%' }}>File name: <input value={filename} onChange={(e) => setFilename(e.target.value)} style={{ width: '100%' }} /></div>
-			<div>File updated: {data?.admin?.updated}</div>
+			<div>File updated: {data?.admin?.updated && data.admin.updated.toString()}</div>
 			<button onClick={() => saveFile()} disabled={saving}>Save file</button>
 			<textarea value={buffer} style={{ width: '100%' }} onChange={(e) => setBuffer(e.target.value)}/>
 		</div>
