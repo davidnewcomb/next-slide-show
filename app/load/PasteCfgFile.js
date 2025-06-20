@@ -1,22 +1,29 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 
 export default function PasteCfgFile(props) {
 	const { loadObj, close } = props
+	const [buffer, setBuffer] = useState(null)
 
-	const pasteExisting = (e) => {
-		const txt = e.target.value
-		const obj = JSON.parse(txt)
-		loadObj(obj)
-		close()
-	}
+	useEffect(() => {
+		if (buffer) {
+			console.log('useEffect:buffer:something')
+			const obj = JSON.parse(buffer)
+			loadObj(obj)
+			close()
+		} else {
+			console.log('useEffect:buffer:null')
+		}
+	}, [buffer])
 
 	return (
 		<table className="w100">
 			<tbody>
 				<tr>
 					<th>Paste into box and click done</th>
-					<td><input type="text" defaultValue="" onChange={pasteExisting} /></td>
+					<td><input type="text" value={buffer} onChange={(e) => setBuffer(e.target.value)} /></td>
 				</tr>
 			</tbody>
 		</table>

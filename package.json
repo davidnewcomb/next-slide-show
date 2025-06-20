@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bootstrap": "^5.3.7",
     "jimp": "^0.22.12",
     "next": "14.1.0",
     "react": "^18",
