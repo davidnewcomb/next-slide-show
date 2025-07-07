@@ -14,7 +14,7 @@ const formatForPreLoad = (obj) => {
 		const { src, cfg } = it
 		const { rotate, widthPercent } = cfg
 
-		let url = `http://localhost:3000/api/img/${src}?dir=${dir}`
+		let url = `/api/img/${src}?dir=${dir}`
 		let qs = []
 		if (rotate !== 0) {
 			qs.push('rotate=' + rotate)
