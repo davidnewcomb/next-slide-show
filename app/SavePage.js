@@ -20,7 +20,7 @@ export default function SavePage(props) {
 
 		updateCfgFile(filename, obj).then((d) => {
 			setSaving(false)
-			loadObj(d)
+			loadObj(d, false)
 			close()
 		})
 	}, [buffer])
@@ -30,10 +30,36 @@ export default function SavePage(props) {
 		if (obj.admin.filename) {
 			const dir = obj.admin.filename.slice(0, obj.admin.filename.lastIndexOf('/') + 1)
 			obj.cfg.dir = dir
-			loadObj(obj)
-			close()
+			const str = JSON.stringify(obj, null, 4)
+			console.log('switch dir=' + dir)
+			setBuffer(str)
 		}
 	}, [buffer])
+
+	const updateRotate = useCallback((deg) => {
+		const obj = JSON.parse(buffer)
+		for (let i = 0; i < obj.list.length; ++i) {
+			obj.list[i].cfg.rotate = deg
+		}
+		const str = JSON.stringify(obj, null, 4)
+		console.log('set all rotate=' + deg)
+		setBuffer(str)
+	}, [buffer])
+
+	const updateStyle = useCallback((none) => {
+		const obj = JSON.parse(buffer)
+		for (let i = 0; i < obj.list.length; ++i) {
+			obj.list[i].cfg.style = none
+		}
+		const str = JSON.stringify(obj, null, 4)
+		//console.log('style=' + none + ' ' + str)
+		console.log('set all style=' + none)
+		setBuffer(str)
+	}, [buffer])
+
+	const proxySetFilename = useCallback((e) => {
+		setFilename(e.target.value)
+	}, [])
 
 	useEffect(() => {
 		const txt = JSON.stringify(data, null, 4)
@@ -42,36 +68,48 @@ export default function SavePage(props) {
 	}, [data])
 
 	return (
-		<form>
-		<div className="row">
-			<div className="col">
-				<h1>Save</h1>
+		<div>
+			<div className="row">
+				<div className="col">
+					<h1>Save</h1>
+				</div>
 			</div>
-			<div className="col">
-				<button onClick={() => close()} className="btn btn-warning" >Cancel</button>
-			</div>
-		</div>
 
-		<hr />
+			<hr />
 
-		<div className="row">
-			<div className="col">
-				<label htmlFor="formGroupFilenameInput" className="form-label">File name</label>
-				<input value={filename} onChange={(e) => setFilename(e.target.value)} type="text" className="form-control" id="formGroupFilenameInput" placeholder="Config filename" />
+			<div className="row">
+				<div className="col">
+					<label htmlFor="formGroupFilenameInput" className="form-label">File name</label>
+					<input value={filename} onChange={proxySetFilename} type="text" className="form-control" id="formGroupFilenameInput" placeholder="Config filename" />
+				</div>
 			</div>
-		</div>
 
-		<div className="row">
-			<div className="col">
-				<button className="btn btn-primary" onClick={() => switchDir()}>Switch Dir</button> | <button className="btn btn-primary" onClick={() => saveFile()} disabled={saving}>Save file</button>
+			<div className="row">
+				<div className="col">
+					<button className="btn btn-primary" onClick={switchDir}>Switch Dir</button>
+					&nbsp;||&nbsp;
+					<button className="btn btn-primary" onClick={() => updateRotate(0)}>Rotate=0</button>
+					&nbsp;
+					<button className="btn btn-primary" onClick={() => updateRotate(270)}>Rotate=270</button>
+					&nbsp;||&nbsp;
+					<button className="btn btn-primary" onClick={() => updateStyle(true)}>Style=none</button>
+					&nbsp;
+					<button className="btn btn-primary" onClick={() => updateStyle(false)}>Style=width fit</button>
+				</div>
 			</div>
-		</div>
 
-		<div className="row">
-			<div className="col">
-					<textarea value={buffer} onChange={(e) => setBuffer(e.target.value)} className="form-control m-10" />
+			<div className="row">
+				<div className="col">
+					<textarea value={buffer} onChange={(e) => setBuffer(e.target.value)} rows="10" className="form-control m-10" />
+				</div>
 			</div>
+			<div className="row">
+				<div className="col">
+					<button onClick={close} className="btn btn-warning">Cancel</button>
+					<button className="btn btn-primary" onClick={saveFile} disabled={saving}>Save file</button>
+				</div>
+			</div>
+
 		</div>
-		</form>
 	)
 }

@@ -200,9 +200,11 @@ export default function Slideshow() {
 		window.scrollTo(scL, scT)
 	}, [currentIndex, imageState])
 
-	const loadObj = useCallback((obj) => {
+	const loadObj = useCallback((obj, resetIndex = true) => {
 		setImageState(obj)
-		setCurrentIndex(0)
+		if (resetIndex) {
+			setCurrentIndex(0)
+		}
 		//setTimeoutValue(PAUSE)
 	}, [])
 
