@@ -1,16 +1,30 @@
 'use client'
 
-const sStyle = 'statusouter '
+import { useCallback, useState } from 'react'
+
+const hidden = {
+	display: 'none'
+}
+const visable = {
+}
 
 export default function Status(props) {
 
 	const { statusText, fav } = props
+	const [hiddenStyle, setHidden] = useState(visable)
 
-	const style = sStyle + (fav && 'fav')
+	const style = 'status ' + (fav && 'fav')
+
+	const mouseOverHandler = useCallback(() => {
+		setHidden(hidden)
+		setTimeout(() => {
+			setHidden(visable)
+		}, 2000)
+	}, [])
 
 	return (
-		<div className={style}>
-			<div className="status">{statusText}</div>
+		<div className="statusouter" onMouseOver={mouseOverHandler} style={hiddenStyle}>
+			<div className={style}>{statusText}</div>
 		</div>
 	)
 }
