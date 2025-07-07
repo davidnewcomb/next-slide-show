@@ -68,7 +68,7 @@ export default function SavePage(props) {
 	}, [data])
 
 	return (
-		<div>
+		<div className="container">
 			<div className="row">
 				<div className="col">
 					<h1>Save</h1>

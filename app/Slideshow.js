@@ -182,7 +182,6 @@ export default function Slideshow() {
 		if (imageState) {
 			const is = cloneImageState(imageState)
 			is.list[currentIndex].cfg.scroll = { t: parseInt(document.documentElement.scrollTop), l: parseInt(document.documentElement.scrollLeft)}
-			console.log('scrollHandler=', is.list[currentIndex].cfg.scroll)
 			setImageState(is)
 		}
 
@@ -197,7 +196,7 @@ export default function Slideshow() {
 	const onLoadHandler = useCallback(() => {
 		const scT = imageState.list[currentIndex].cfg.scroll.t
 		const scL = imageState.list[currentIndex].cfg.scroll.l
-		window.scrollTo(scL, scT)
+		window.scrollTo({ left: scL, top: scT, behavior:'instant' })
 	}, [currentIndex, imageState])
 
 	const loadObj = useCallback((obj, resetIndex = true) => {

@@ -3,13 +3,14 @@
 import LoadCfgFile from './load/LoadCfgFile'
 import PasteCfgFile from './load/PasteCfgFile'
 import GenerateCfgFile from './load/GenerateCfgFile'
+import PreLoadCfgFile from './load/PreLoadCfgFile'
 
 
 export default function LoadPage(props) {
 	const { loadObj, close, cfg, admin } = props
 
 	return (
-		<div>
+		<div className="container">
 			<h1>Load</h1>
 			<button onClick={() => close()}>Cancel</button>
 			<hr/>
@@ -18,6 +19,8 @@ export default function LoadPage(props) {
 			<PasteCfgFile loadObj={loadObj} close={close} />
 			<hr />
 			<GenerateCfgFile loadObj={loadObj} close={close} cfg={cfg} admin={admin} />
+			<hr/>
+			<PreLoadCfgFile />
 		</div>
 	)
 }
