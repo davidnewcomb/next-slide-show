@@ -88,9 +88,15 @@ export default function SavePage(props) {
 				<div className="col">
 					<button className="btn btn-primary" onClick={switchDir}>Switch Dir</button>
 					&nbsp;||&nbsp;
-					<button className="btn btn-primary" onClick={() => updateRotate(0)}>Rotate=0</button>
+					Rotate
 					&nbsp;
-					<button className="btn btn-primary" onClick={() => updateRotate(270)}>Rotate=270</button>
+					<button className="btn btn-primary" onClick={() => updateRotate(0)}>0</button>
+					&nbsp;
+					<button className="btn btn-primary" onClick={() => updateRotate(90)}>90</button>
+					&nbsp;
+					<button className="btn btn-primary" onClick={() => updateRotate(180)}>180</button>
+					&nbsp;
+					<button className="btn btn-primary" onClick={() => updateRotate(270)}>270</button>
 					&nbsp;||&nbsp;
 					<button className="btn btn-primary" onClick={() => updateStyle(true)}>Style=none</button>
 					&nbsp;
