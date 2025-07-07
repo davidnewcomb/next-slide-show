@@ -5,16 +5,16 @@ import { useEffect, useState } from 'react'
 
 export default function PasteCfgFile(props) {
 	const { loadObj, close } = props
-	const [buffer, setBuffer] = useState(null)
+	const [buffer, setBuffer] = useState('')
 
 	useEffect(() => {
-		if (buffer) {
+		if (buffer !== '') {
 			console.log('useEffect:buffer:something')
 			const obj = JSON.parse(buffer)
 			loadObj(obj)
 			close()
 		} else {
-			console.log('useEffect:buffer:null')
+			console.log('useEffect:buffer:""')
 		}
 	}, [buffer])
 

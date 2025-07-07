@@ -4,6 +4,15 @@ import fs from 'fs'
 import path from 'path'
 import { SERVER_IMAGE_DIR } from './cfg'
 
+// 1 - start (no admin)
+// 2 - add admin section
+// 3 - change cfg.scrollTop,cfg.scrollTop to cfg.scroll = {t,l}, add VERSION
+
+const VERSION_1 = 1
+const VERSION_2 = 2
+const VERSION_3 = 3
+const VERSION = VERSION_3
+
 export const getImages = async (folder) => {
 	const images = fs.readdirSync(SERVER_IMAGE_DIR).filter(f => f.toLowerCase().endsWith('.jpg'))
 	images.sort()
@@ -25,8 +34,10 @@ const generateCfgJson = (cfgFilename) => {
 			style: false,
 			widthPercent: 100,
 			rotate: 0,
-			scrollTop: 0,
-			scrollLeft: 0
+			scroll: {
+				t: 0,
+				l: 0
+			}
 		}
 	}
 
@@ -42,6 +53,7 @@ const generateCfgJson = (cfgFilename) => {
 		},
 		list: [],
 		admin: {
+			version: VERSION,
 			updated: now,
 			created: now,
 			filename: cfgFilename
@@ -73,6 +85,21 @@ export const readCfgFile = (filename) => {
 		obj.admin = {}
 	}
 	obj.admin.filename = filename
+	if (!obj.admin.version) {
+		obj.admin.version = VERSION_2
+	}
+
+	if (obj.admin.version < VERSION_3 && obj.list.length > 0) {
+		for (let i = 0 ; i < obj.list.length ; ++i) {
+			obj.list[i].cfg.scroll = {
+				t: obj.list[i].cfg.scrollTop,
+				l: obj.list[i].cfg.scrollLeft
+			}
+			delete obj.list[i].cfg.scrollTop
+			delete obj.list[i].cfg.scrollLeft
+		}
+		obj.admin.version = VERSION_3
+	}
 	return obj
 }
 

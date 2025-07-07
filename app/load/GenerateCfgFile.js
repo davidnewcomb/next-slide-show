@@ -6,8 +6,10 @@ const defaultCfg = {
 	style: false,
 	widthPercent: 100,
 	rotate: 0,
-	scrollTop: 0,
-	scrollLeft: 0
+	scroll: {
+		t: 0,
+		l: 0
+	}
 }
 
 export default function GenerateCfgFile(props) {

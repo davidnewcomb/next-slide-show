@@ -1,12 +1,21 @@
-//'use client'
+'use client'
 
-const progressStyle = { width: '100%' }
+import { useCallback } from "react"
+
+const progressStyle = {
+	width: '100%',
+	position: 'fixed'
+}
 
 export default function ProgressBar(props) {
 
-	const { percentage } = props
+	const { cur, max, setCurrentIndex } = props
+
+	const onChangeHandler = useCallback((e) => {
+		setCurrentIndex(+e.target.value)
+	}, [setCurrentIndex])
 
 	return (
-		<progress value={percentage} max={100} style={progressStyle} />
+		<input type="range" value={cur} min={1} max={max} style={progressStyle} onChange={onChangeHandler}/>
 	)
 }

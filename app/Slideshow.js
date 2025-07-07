@@ -9,7 +9,9 @@ import {
 	SS_WIDTH_SMALLER, SS_WIDTH_BIGGER, SS_WIDTH_MAX,
 	SS_FAV, SS_SWITCH_TO_FAVS,
 	SS_CFG_LOAD, SS_CFG_SAVE,
-	SS_CONTROL_PANEL
+	SS_CONTROL_PANEL,
+	SS_BACK_CURSOR,
+	SS_FORWARD_CURSOR
 } from './cfg'
 import ControlPanel from './ControlPanel'
 import Status from './Status'
@@ -33,7 +35,20 @@ const doRotation = (currentDegs, addRotation) => {
 const styleToClass = (s) => {
 	return s ? 'none' : 'responsive'
 }
+const cloneImageStateListItem = (li) => {
+	const o = {...li}
+	o.cfg = {...li.cfg}
+	o.cfg.scroll = { ...li.cfg.scroll }
+	return o
+}
 
+const cloneImageState = (is) => {
+	const o = { ...is }
+	o.cfg = { ...is.cfg }
+	o.admin = { ...is.admin }
+	o.list = is.list.map(i => cloneImageStateListItem(i))
+	return o
+}
 
 export default function Slideshow() {
 
@@ -96,34 +111,34 @@ export default function Slideshow() {
 	}, [currentIndex, imageState, prevFavIdx])
 
 	const rotation = useCallback((deg) => {
-		const is = {...imageState}
-		if (!is.list) {
+		if (!imageState.list) {
 			return
 		}
+		const is = cloneImageState(imageState)
 		is.list[currentIndex].cfg.rotate = doRotation(is.list[currentIndex].cfg.rotate, deg)
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const width = useCallback((w) => {
-		const is = {...imageState}
-		if (!is.list) {
+		if (!imageState.list) {
 			return
 		}
-		const newWidth = w === null ? 100 : is.list[currentIndex].cfg.widthPercent += w
+		const is = cloneImageState(imageState)
+		const newWidth = w === null ? 100 : is.list[currentIndex].cfg.widthPercent + w
 		is.list[currentIndex].cfg.widthPercent = newWidth
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const toggleFavourite = useCallback(() => {
-		const is = {...imageState}
+		const is = cloneImageState(imageState)
 		is.list[currentIndex].fav = !is.list[currentIndex].fav
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const handleKeyPress = useCallback((event) => {
-		if (event.key === SS_FORWARD) {
+		if (event.key === SS_FORWARD || event.key === SS_FORWARD_CURSOR) {
 			nextSlide()
-		} else if (event.key === SS_BACK) {
+		} else if (event.key === SS_BACK || event.key === SS_BACK_CURSOR) {
 			prevSlide()
 		} else if (event.key === SS_ROTATE_180) {
 			rotation(180)
@@ -160,26 +175,30 @@ export default function Slideshow() {
 		}
 	}, [nextSlide, prevSlide, rotation, width, toggleFavourite])
 
-	const handleScroll = useCallback(() => {
-		// console.log('top=' + document.documentElement.scrollTop)
-		// console.log('left=' + document.documentElement.scrollLeft)
-		const is = {...imageState}
-		is.list[currentIndex].cfg.scrollTop = document.documentElement.scrollTop
-		is.list[currentIndex].cfg.scrollLeft = document.documentElement.scrollLeft
-		setImageState(is)
-	}, [currentIndex, imageState, document.documentElement.scrollTop, document.documentElement.scrollLeft])
+	const scrollHandler = useCallback(() => {
+		if (loadCfg || saveCfg) {
+			return
+		}
+		if (imageState) {
+			const is = cloneImageState(imageState)
+			is.list[currentIndex].cfg.scroll = { t: parseInt(document.documentElement.scrollTop), l: parseInt(document.documentElement.scrollLeft)}
+			console.log('scrollHandler=', is.list[currentIndex].cfg.scroll)
+			setImageState(is)
+		}
+
+	}, [currentIndex, imageState])
 
 	const onClickHandler = useCallback(() => {
-		const is = {...imageState}
+		const is = cloneImageState(imageState)
 		is.list[currentIndex].cfg.style = !is.list[currentIndex].cfg.style
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const onLoadHandler = useCallback(() => {
-		console.log('onLoadHandler [' + currentIndex +'](' + imageState.list[currentIndex].cfg.scrollTop + ',' + imageState.list[currentIndex].cfg.scrollLeft + ') ')
-		document.documentElement.scrollTop = imageState.list[currentIndex].cfg.scrollTop
-		document.documentElement.scrollLeft = imageState.list[currentIndex].cfg.scrollLeft
-	}, [currentIndex, imageState, document.documentElement.scrollTop, document.documentElement.scrollLeft]) //, document.documentElement.scrollTop, document.documentElement.scrollLeft])
+		const scT = imageState.list[currentIndex].cfg.scroll.t
+		const scL = imageState.list[currentIndex].cfg.scroll.l
+		window.scrollTo(scL, scT)
+	}, [currentIndex, imageState])
 
 	const loadObj = useCallback((obj) => {
 		setImageState(obj)
@@ -189,14 +208,13 @@ export default function Slideshow() {
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyPress)
-		document.addEventListener('scroll', handleScroll)
+		document.addEventListener('scroll', scrollHandler)
 
 		return () => {
 			document.removeEventListener('keydown', handleKeyPress)
-			document.removeEventListener('scroll', handleScroll)
+			document.removeEventListener('scroll', scrollHandler)
 		}
-	}, [handleKeyPress, handleScroll])
-
+	}, [handleKeyPress, scrollHandler])
 
 	useEffect(() => {
 		if (!imageState) {
@@ -216,16 +234,20 @@ export default function Slideshow() {
 
 	if (!imageState || loadCfg) {
 		//setTimeoutValue(PAUSED_FOREVER)
+		document.removeEventListener('scroll', scrollHandler)
 		return <LoadPage loadObj={loadObj} close={() => {
 			setLoadCfg(false)
-			//setTimeoutValue(PAUSE)
+			setTimeoutValue(PAUSE)
+			document.addEventListener('scroll', scrollHandler)
 		}} cfg={imageState?.cfg} admin={imageState?.admin}/>
 	}
 
 	if (saveCfg) {
+		document.removeEventListener('scroll', scrollHandler)
 		return <SavePage data={imageState} loadObj={loadObj} close={() => {
 			setSaveCfg(false)
 			setTimeoutValue(PAUSE)
+			document.addEventListener('scroll', scrollHandler)
 		}} />
 	}
 
@@ -236,8 +258,8 @@ export default function Slideshow() {
 	const thisOne = imageState.list[currentIndex]
 	const thisOneCfg = thisOne.cfg
 
-	let scTop = thisOneCfg.scrollTop
-	let scLeft = thisOneCfg.scrollLeft
+	let scTop = thisOneCfg.scroll.t
+	let scLeft = thisOneCfg.scroll.l
 	let widthPercent = thisOneCfg.widthPercent
 	let rotate = thisOneCfg.rotate
 	let style = thisOneCfg.style
@@ -280,8 +302,6 @@ export default function Slideshow() {
 		+ (scLeft ? ' scL=' + scLeft : '')
 		+ (isFav ? ' [fav]' : '')
 
-	const percentage = parseInt((currentIndex / imageState.list.length) * 100)
-
 	// Debug
 	if (false) {
 		let db = []
@@ -294,9 +314,11 @@ export default function Slideshow() {
 		console.log(JSON.stringify(db, null, 4))
 	}
 
+	const max = imageState ? imageState.list.length : 0
+
 	return (
 		<div>
-			<ProgressBar percentage={percentage}/>
+			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex}/>
 			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav}/>}
 			<Status statusText={statusText} fav={isFav} />
 			<img {...imgProps} />

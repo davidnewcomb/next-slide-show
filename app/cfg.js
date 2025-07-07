@@ -4,7 +4,10 @@ export const PAUSE = 4 * 1000
 export const IMAGE_CLASS_NAMES = ['responsive', 'none']
 
 export const SS_BACK = 'z'
+export const SS_BACK_CURSOR = 'ArrowRight'
+
 export const SS_FORWARD = 'x'
+export const SS_FORWARD_CURSOR = 'ArrowLeft'
 export const SS_PAUSE = 'p'
 export const SS_CONTROL_PANEL = 'c'
 

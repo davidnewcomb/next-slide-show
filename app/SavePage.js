@@ -43,32 +43,32 @@ export default function SavePage(props) {
 
 	return (
 		<form>
-		<div class="row">
-			<div class="col">
+		<div className="row">
+			<div className="col">
 				<h1>Save</h1>
 			</div>
-			<div class="col">
+			<div className="col">
 				<button onClick={() => close()} className="btn btn-warning" >Cancel</button>
 			</div>
 		</div>
 
 		<hr />
 
-		<div class="row">
-			<div class="col">
-				<label for="formGroupFilenameInput" className="form-label">File name</label>
+		<div className="row">
+			<div className="col">
+				<label htmlFor="formGroupFilenameInput" className="form-label">File name</label>
 				<input value={filename} onChange={(e) => setFilename(e.target.value)} type="text" className="form-control" id="formGroupFilenameInput" placeholder="Config filename" />
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col">
+		<div className="row">
+			<div className="col">
 				<button className="btn btn-primary" onClick={() => switchDir()}>Switch Dir</button> | <button className="btn btn-primary" onClick={() => saveFile()} disabled={saving}>Save file</button>
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col">
+		<div className="row">
+			<div className="col">
 					<textarea value={buffer} onChange={(e) => setBuffer(e.target.value)} className="form-control m-10" />
 			</div>
 		</div>
