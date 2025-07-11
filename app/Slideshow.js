@@ -11,7 +11,8 @@ import {
 	SS_CFG_LOAD, SS_CFG_SAVE,
 	SS_CONTROL_PANEL,
 	SS_BACK_CURSOR,
-	SS_FORWARD_CURSOR
+	SS_FORWARD_CURSOR,
+	SS_CFG_DUP
 } from './cfg'
 import ControlPanel from './ControlPanel'
 import Status from './Status'
@@ -135,6 +136,12 @@ export default function Slideshow() {
 		setImageState(is)
 	}, [currentIndex, imageState])
 
+	const duplicate = useCallback(() => {
+		const is = cloneImageState(imageState)
+		is.list.splice(currentIndex, 0, is.list[currentIndex])
+		setImageState(is)
+	}, [currentIndex, imageState])
+
 	const handleKeyPress = useCallback((event) => {
 		if (event.key === SS_FORWARD || event.key === SS_FORWARD_CURSOR) {
 			nextSlide()
@@ -164,6 +171,8 @@ export default function Slideshow() {
 				setSaveCfg(false)
 			}
 			setLoadCfg(true)
+		} else if (event.key === SS_CFG_DUP) {
+			duplicate()
 		} else if (event.key === SS_CFG_SAVE) {
 			setTimeoutValue(PAUSED_FOREVER)
 			if (loadCfg) {
@@ -173,7 +182,7 @@ export default function Slideshow() {
 		} else if (event.key === SS_CONTROL_PANEL) {
 			setShowControlPanel(it => !it)
 		}
-	}, [nextSlide, prevSlide, rotation, width, toggleFavourite])
+	}, [nextSlide, prevSlide, rotation, width, toggleFavourite, duplicate])
 
 	const scrollHandler = useCallback(() => {
 		if (loadCfg || saveCfg) {

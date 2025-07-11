@@ -5,7 +5,8 @@ import {
 	SS_BACK, SS_FORWARD,
 	SS_ROTATE_180, SS_ROTATE_P90, SS_ROTATE_N90,
 	SS_WIDTH_SMALLER, SS_WIDTH_BIGGER, SS_WIDTH_MAX,
-	SS_SWITCH_TO_FAVS, SS_FAV
+	SS_SWITCH_TO_FAVS, SS_FAV,
+	SS_CFG_DUP
 } from './cfg'
 
 const keys = [
@@ -18,6 +19,7 @@ const keys = [
 	{ key: SS_ROTATE_P90, title: '-90', desc: 'Rotate anti-clockwise' },
 	{ key: SS_ROTATE_N90, title: '+90', desc: 'Rotate clockwise' },
 	{ key: SS_ROTATE_180, title: '180', desc: 'Rotate 180' },
+	{ key: SS_CFG_DUP, title: 'Dup', desc: 'Duplicate' },
 	{ key: SS_FAV, title: '+Fav', desc: 'Add/Remove to favourites' },
 	{ key: SS_SWITCH_TO_FAVS, title: 'Fav', desc: 'Show favourites' }
 ]
