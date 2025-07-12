@@ -140,6 +140,7 @@ export default function Slideshow() {
 		const is = cloneImageState(imageState)
 		is.list.splice(currentIndex, 0, is.list[currentIndex])
 		setImageState(is)
+		setCurrentIndex(currentIndex+1)
 	}, [currentIndex, imageState])
 
 	const handleKeyPress = useCallback((event) => {
