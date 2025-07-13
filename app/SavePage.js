@@ -23,7 +23,7 @@ export default function SavePage(props) {
 			loadObj(d, false)
 			close()
 		})
-	}, [buffer])
+	}, [buffer, filename])
 
 	const switchDir = useCallback(() => {
 		const obj = JSON.parse(buffer)
