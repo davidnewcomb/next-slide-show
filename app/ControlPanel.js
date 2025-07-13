@@ -34,7 +34,7 @@ export default function ControlPanel(props) {
 	return (
 		<div className={style}>
 			{
-				keys.map((k, ki) => <div key={ki} onClick={() => handleKeyPress({ key: k.key })} title={`${k.desc} (${k.key})`}>&nbsp;{k.title}&nbsp;</div>)
+				keys.map((k, ki) => <div className="controlpanelhov" key={ki} onClick={() => handleKeyPress({ key: k.key })} title={`${k.desc} (${k.key})`}>&nbsp;{k.title}&nbsp;</div>)
 			}
 		</div>
 	)

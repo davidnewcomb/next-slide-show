@@ -45,6 +45,10 @@
 	background-color: rgb(191, 245, 191);
 }
 
+.controlpanelhov:hover {
+	background-color: magenta;
+}
+
 .w100 {
 	width: 100%;
 }
