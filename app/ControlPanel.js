@@ -6,11 +6,12 @@ import {
 	SS_ROTATE_180, SS_ROTATE_P90, SS_ROTATE_N90,
 	SS_WIDTH_SMALLER, SS_WIDTH_BIGGER, SS_WIDTH_MAX,
 	SS_SWITCH_TO_FAVS, SS_FAV,
-	SS_CFG_DUP
+	SS_CFG_DUP, SS_CONTROL_PANEL_STYLE
 } from './cfg'
 
 const keys = [
 	{ key: SS_BACK, title: '<', desc: 'Backwards' },
+	{ key: SS_FAV, title: '+Fav', desc: 'Add/Remove to favourites' },
 	{ key: SS_FORWARD, title: '>', desc: 'Forwards' },
 	{ key: SS_PAUSE, title: 'P', desc: 'Pause' },
 	{ key: SS_WIDTH_SMALLER, title: 'v', desc: 'Decrease size' },
@@ -20,16 +21,14 @@ const keys = [
 	{ key: SS_ROTATE_N90, title: '+90', desc: 'Rotate clockwise' },
 	{ key: SS_ROTATE_180, title: '180', desc: 'Rotate 180' },
 	{ key: SS_CFG_DUP, title: 'Dup', desc: 'Duplicate' },
-	{ key: SS_FAV, title: '+Fav', desc: 'Add/Remove to favourites' },
+	{ key: SS_CONTROL_PANEL_STYLE, title: '^>', desc: 'Horizontal or vertial control panel' },
 	{ key: SS_SWITCH_TO_FAVS, title: 'Fav', desc: 'Show favourites' }
 ]
 
-const cpStyle = 'controlpanel '
 
 export default function ControlPanel(props) {
-	const { handleKeyPress, fav } = props
-
-	const style = cpStyle + (fav && 'fav')
+	const { handleKeyPress, fav, controlPanelStyle } = props
+	const style = (controlPanelStyle ? 'controlpanel-hor ' : 'controlpanel-ver ')  + (fav && 'fav')
 
 	return (
 		<div className={style}>

@@ -33,8 +33,9 @@ export default function LoadCfgFile(props) {
 	}, [])
 
 	useEffect(() => {
-		if (searchParams.get('cfgfile')) {
-			setNewFilename(searchParams.get('cfgfile'))
+		const cfgfile = searchParams.get('cfgfile')
+		if (cfgfile) {
+			setNewFilename(cfgfile)
 		} else {
 			setNewFilename(filename)
 		}

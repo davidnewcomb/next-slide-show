@@ -9,7 +9,7 @@ import {
 	SS_WIDTH_SMALLER, SS_WIDTH_BIGGER, SS_WIDTH_MAX,
 	SS_FAV, SS_SWITCH_TO_FAVS,
 	SS_CFG_LOAD, SS_CFG_SAVE,
-	SS_CONTROL_PANEL,
+	SS_CONTROL_PANEL, SS_CONTROL_PANEL_STYLE,
 	SS_BACK_CURSOR,
 	SS_FORWARD_CURSOR,
 	SS_CFG_DUP
@@ -55,6 +55,7 @@ export default function Slideshow() {
 
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [timeoutValue, setTimeoutValue] = useState(PAUSE)
+	const [controlPanelStyle, setControlPanelStyle] = useState(false)
 	const [showFavourites, setShowFavourites] = useState(false)
 	const [showControlPanel, setShowControlPanel] = useState(true)
 	const [imageState, setImageState] = useState(null)
@@ -112,7 +113,7 @@ export default function Slideshow() {
 	}, [currentIndex, imageState, prevFavIdx])
 
 	const rotation = useCallback((deg) => {
-		if (!imageState.list) {
+		if (!imageState?.list) {
 			return
 		}
 		const is = cloneImageState(imageState)
@@ -121,7 +122,7 @@ export default function Slideshow() {
 	}, [currentIndex, imageState])
 
 	const width = useCallback((w) => {
-		if (!imageState.list) {
+		if (!imageState?.list) {
 			return
 		}
 		const is = cloneImageState(imageState)
@@ -144,6 +145,9 @@ export default function Slideshow() {
 	}, [currentIndex, imageState])
 
 	const handleKeyPress = useCallback((event) => {
+
+		// TODO make a switch statement
+
 		if (event.key === SS_FORWARD || event.key === SS_FORWARD_CURSOR) {
 			nextSlide()
 		} else if (event.key === SS_BACK || event.key === SS_BACK_CURSOR) {
@@ -182,6 +186,8 @@ export default function Slideshow() {
 			setSaveCfg(true)
 		} else if (event.key === SS_CONTROL_PANEL) {
 			setShowControlPanel(it => !it)
+		} else if (event.key === SS_CONTROL_PANEL_STYLE) {
+			setControlPanelStyle(it => !it)
 		}
 	}, [nextSlide, prevSlide, rotation, width, toggleFavourite, duplicate])
 
@@ -330,7 +336,7 @@ export default function Slideshow() {
 	return (
 		<div>
 			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex}/>
-			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav}/>}
+			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle}/>}
 			<Status statusText={statusText} fav={isFav} />
 			<img {...imgProps} />
 		</div>

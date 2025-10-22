@@ -1,6 +1,6 @@
 
 export const BROWSER_IMAGE_DIR = '/api/img/'
-export const PAUSE = 4 * 1000
+export const PAUSE = 3 * 1000
 export const IMAGE_CLASS_NAMES = ['responsive', 'none']
 
 export const SS_BACK = 'z'
@@ -22,3 +22,4 @@ export const SS_SWITCH_TO_FAVS = 'F'
 export const SS_CFG_LOAD = 'L'
 export const SS_CFG_SAVE = 'S'
 export const SS_CFG_DUP = 'D'
+export const SS_CONTROL_PANEL_STYLE = 'C'

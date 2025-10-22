@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { readCfgFile } from '../server'
 import { useSearchParams } from 'next/navigation'
+import TableRow from './TableRow'
+import ScreenShow from './ScreenShow'
 
 
 
@@ -34,7 +36,6 @@ const formatForPreLoad = (obj) => {
 
 	return items
 }
-const numScreens = 3
 
 export default function PreLoadCfgFile(props) {
 	const { filename } = props
@@ -111,36 +112,5 @@ export default function PreLoadCfgFile(props) {
 				</tbody>
 			</table>
 		</div>
-	)
-}
-
-function ScreenShow(props) {
-	const { items, finishImageLoad } = props
-	if (items.length === 0) {
-		return <div>No items</div>
-	}
-
-	const images = items.filter(it => it.loaded !== true).filter((_, idx) => idx < 3)
-
-	return (
-		<div className="row">
-			{images.map(item => (
-				<div key={item.idx} className="col" style={{ border: '1px black solid' }}>
-					<img src={item.url} onLoad={() => finishImageLoad(item.idx)} className="img-fluid" />
-				</div>
-			))}
-		</div>
-	)
-}
-
-function TableRow(props) {
-	const { idx, url, loaded } = props
-	const st = loaded === true ? 'success' : 'warning'
-	return (
-		<tr className={`table-${st}`}>
-			<td>{idx}</td>
-			<td>{url}</td>
-			<td>{loaded ? 'loaded' : 'waiting...'}</td>
-		</tr>
 	)
 }
