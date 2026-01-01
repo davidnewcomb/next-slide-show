@@ -37,13 +37,16 @@ const styleToClass = (s) => {
 	return s ? 'none' : 'responsive'
 }
 const cloneImageStateListItem = (li) => {
-	const o = {...li}
-	o.cfg = {...li.cfg}
+	const o = { ...li }
+	o.cfg = { ...li.cfg }
 	o.cfg.scroll = { ...li.cfg.scroll }
 	return o
 }
 
 const cloneImageState = (is) => {
+	if (!is) {
+		return is
+	}
 	const o = { ...is }
 	o.cfg = { ...is.cfg }
 	o.admin = { ...is.admin }
@@ -92,7 +95,7 @@ export default function Slideshow() {
 				return i
 			}
 		}
-		for (let i = stuff.length-1; i > -1 ; --i) {
+		for (let i = stuff.length - 1; i > -1; --i) {
 			if (!showFavourites || stuff[i].fav) {
 				return i
 			}
@@ -103,17 +106,23 @@ export default function Slideshow() {
 	}, [showFavourites])
 
 	const nextSlide = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const nId = nextFavIdx(currentIndex, imageState.list)
 		setCurrentIndex(nId)
 	}, [currentIndex, imageState, nextFavIdx])
 
 	const prevSlide = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const nId = prevFavIdx(currentIndex, imageState.list)
 		setCurrentIndex(nId)
 	}, [currentIndex, imageState, prevFavIdx])
 
 	const rotation = useCallback((deg) => {
-		if (!imageState?.list) {
+		if (!imageState) {
 			return
 		}
 		const is = cloneImageState(imageState)
@@ -122,7 +131,7 @@ export default function Slideshow() {
 	}, [currentIndex, imageState])
 
 	const width = useCallback((w) => {
-		if (!imageState?.list) {
+		if (!imageState) {
 			return
 		}
 		const is = cloneImageState(imageState)
@@ -132,16 +141,22 @@ export default function Slideshow() {
 	}, [currentIndex, imageState])
 
 	const toggleFavourite = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const is = cloneImageState(imageState)
 		is.list[currentIndex].fav = !is.list[currentIndex].fav
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const duplicate = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const is = cloneImageState(imageState)
 		is.list.splice(currentIndex, 0, is.list[currentIndex])
 		setImageState(is)
-		setCurrentIndex(currentIndex+1)
+		setCurrentIndex(currentIndex + 1)
 	}, [currentIndex, imageState])
 
 	const handleKeyPress = useCallback((event) => {
@@ -169,7 +184,7 @@ export default function Slideshow() {
 		} else if (event.key === SS_FAV) {
 			toggleFavourite()
 		} else if (event.key === SS_SWITCH_TO_FAVS) {
-			setShowFavourites( it => !it )
+			setShowFavourites(it => !it)
 		} else if (event.key === SS_CFG_LOAD) {
 			setTimeoutValue(PAUSED_FOREVER)
 			if (saveCfg) {
@@ -197,22 +212,28 @@ export default function Slideshow() {
 		}
 		if (imageState) {
 			const is = cloneImageState(imageState)
-			is.list[currentIndex].cfg.scroll = { t: parseInt(document.documentElement.scrollTop), l: parseInt(document.documentElement.scrollLeft)}
+			is.list[currentIndex].cfg.scroll = { t: parseInt(document.documentElement.scrollTop), l: parseInt(document.documentElement.scrollLeft) }
 			setImageState(is)
 		}
 
 	}, [currentIndex, imageState])
 
 	const onClickHandler = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const is = cloneImageState(imageState)
 		is.list[currentIndex].cfg.style = !is.list[currentIndex].cfg.style
 		setImageState(is)
 	}, [currentIndex, imageState])
 
 	const onLoadHandler = useCallback(() => {
+		if (!imageState) {
+			return
+		}
 		const scT = imageState.list[currentIndex].cfg.scroll.t
 		const scL = imageState.list[currentIndex].cfg.scroll.l
-		window.scrollTo({ left: scL, top: scT, behavior:'instant' })
+		window.scrollTo({ left: scL, top: scT, behavior: 'instant' })
 	}, [currentIndex, imageState])
 
 	const loadObj = useCallback((obj, resetIndex = true) => {
@@ -222,6 +243,15 @@ export default function Slideshow() {
 		}
 		//setTimeoutValue(PAUSE)
 	}, [])
+
+	const scrollHandlerController = useCallback((enable) => {
+		if (enable) {
+			document.addEventListener('scroll', scrollHandler)
+		} else {
+			document.removeEventListener('scroll', scrollHandler)
+		}
+
+	}, [scrollHandler]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyPress)
@@ -250,21 +280,16 @@ export default function Slideshow() {
 	}, [timeoutValue, imageState, nextSlide])
 
 	if (!imageState || loadCfg) {
-		//setTimeoutValue(PAUSED_FOREVER)
-		document.removeEventListener('scroll', scrollHandler)
-		return <LoadPage loadObj={loadObj} close={() => {
+		return <LoadPage loadObj={loadObj} scrollHandlerController={scrollHandlerController} close={() => {
 			setLoadCfg(false)
 			setTimeoutValue(PAUSE)
-			document.addEventListener('scroll', scrollHandler)
-		}} cfg={imageState?.cfg} admin={imageState?.admin}/>
+		}} cfg={imageState?.cfg} admin={imageState?.admin} />
 	}
 
 	if (saveCfg) {
-		document.removeEventListener('scroll', scrollHandler)
-		return <SavePage data={imageState} loadObj={loadObj} close={() => {
+		return <SavePage data={imageState} loadObj={loadObj} scrollHandlerController={scrollHandlerController} close={() => {
 			setSaveCfg(false)
 			setTimeoutValue(PAUSE)
-			document.addEventListener('scroll', scrollHandler)
 		}} />
 	}
 
@@ -331,12 +356,12 @@ export default function Slideshow() {
 		console.log(JSON.stringify(db, null, 4))
 	}
 
-	const max = imageState ? imageState.list.length : 0
+	const max = imageState ? imageState.list.length - 1 : 0
 
 	return (
 		<div>
-			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex}/>
-			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle}/>}
+			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex} />
+			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle} />}
 			<Status statusText={statusText} fav={isFav} />
 			<img {...imgProps} />
 		</div>

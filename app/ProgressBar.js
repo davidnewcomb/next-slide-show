@@ -16,6 +16,6 @@ export default function ProgressBar(props) {
 	}, [setCurrentIndex])
 
 	return (
-		<input type="range" value={cur} min={1} max={max} style={progressStyle} onChange={onChangeHandler}/>
+		<input type="range" value={cur} min={1} max={max} style={progressStyle} onChange={onChangeHandler} />
 	)
 }

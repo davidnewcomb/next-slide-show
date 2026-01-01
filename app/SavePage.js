@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { updateCfgFile } from './server'
 
 export default function SavePage(props) {
-	const { data, loadObj, close } = props
+	const { data, loadObj, close, scrollHandlerController } = props
 	const [saving, setSaving] = useState(false)
 	const [buffer, setBuffer] = useState('')
 	const [filename, setFilename] = useState('')
@@ -65,6 +65,9 @@ export default function SavePage(props) {
 		const txt = JSON.stringify(data, null, 4)
 		setBuffer(txt)
 		setFilename(data?.admin?.filename || '')
+
+		scrollHandlerController(false)
+		return () => scrollHandlerController(true)
 	}, [data])
 
 	return (

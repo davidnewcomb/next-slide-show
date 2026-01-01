@@ -9,10 +9,14 @@ export default function PasteCfgFile(props) {
 
 	useEffect(() => {
 		if (buffer !== '') {
-			console.log('useEffect:buffer:something')
-			const obj = JSON.parse(buffer)
-			loadObj(obj)
-			close()
+			try {
+				const obj = JSON.parse(buffer)
+				loadObj(obj)
+			} catch (err) {
+				console.log('Parse error' + err)
+			} finally {
+				close()
+			}
 		} else {
 			console.log('useEffect:buffer:""')
 		}
