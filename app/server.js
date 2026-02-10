@@ -13,13 +13,13 @@ const VERSION_2 = 2
 const VERSION_3 = 3
 const VERSION = VERSION_3
 
-export const getImages = async (folder) => {
-	const images = fs.readdirSync(SERVER_IMAGE_DIR).filter(f => f.toLowerCase().endsWith('.jpg'))
-	images.sort()
-	return images
-}
+// export const getImages = async (folder) => {
+// 	const images = fs.readdirSync(SERVER_IMAGE_DIR).filter(f => f.toLowerCase().endsWith('.jpg'))
+// 	images.sort()
+// 	return images
+// }
 
-const imageExtns = ['.jpg', '.jpeg', '.webp']
+const imageExtns = ['.jpg', '.jpeg', '.png', '.webp']
 
 const generateCfgJson = (cfgFilename) => {
 	const dir = path.dirname(cfgFilename)
@@ -68,12 +68,12 @@ const generateCfgJson = (cfgFilename) => {
 
 export const readCfgFile = (filename) => {
 	if (!fs.existsSync(filename)) {
-		return {error: true, message: filename + ' not found'}
+		return { error: true, message: filename + ' not found' }
 	}
 	if (fs.statSync(filename).size == 0) {
 		const o = generateCfgJson(filename)
 		return o
-//		return { error: true, message: filename + ' is empty' }
+		//		return { error: true, message: filename + ' is empty' }
 	}
 	const json = fs.readFileSync(filename)
 	console.log('Read file:' + filename)
@@ -90,7 +90,7 @@ export const readCfgFile = (filename) => {
 	}
 
 	if (obj.admin.version < VERSION_3 && obj.list.length > 0) {
-		for (let i = 0 ; i < obj.list.length ; ++i) {
+		for (let i = 0; i < obj.list.length; ++i) {
 			obj.list[i].cfg.scroll = {
 				t: obj.list[i].cfg.scrollTop,
 				l: obj.list[i].cfg.scrollLeft

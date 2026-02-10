@@ -38,7 +38,6 @@ const formatForPreLoad = (obj) => {
 }
 
 export default function PreLoadCfgFile(props) {
-	const { filename } = props
 	const [newFilename, setNewFilename] = useState('')
 	const [message, setMessage] = useState('')
 	const searchParams = useSearchParams()
@@ -89,10 +88,8 @@ export default function PreLoadCfgFile(props) {
 	useEffect(() => {
 		if (searchParams.get('cfgfile')) {
 			setNewFilename(searchParams.get('cfgfile'))
-		} else {
-			setNewFilename(filename)
 		}
-	}, [filename, searchParams])
+	}, [searchParams])
 
 	return (
 		<div className="container">
