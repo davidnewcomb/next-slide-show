@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
 	BROWSER_IMAGE_DIR, PAUSE,
 	SS_PAUSE,
@@ -36,6 +36,64 @@ const doRotation = (currentDegs, addRotation) => {
 const styleToClass = (s) => {
 	return s ? 'none' : 'responsive'
 }
+
+const round = (n) => Math.round(n * 1000) / 1000
+
+// The stored rotation is anti-clockwise (that is how jimp used to apply it when
+// the images were transformed on the server), css rotate() turns clockwise, so
+// the angle is negated on the way out. Old cfg files keep looking the same.
+const cssRotation = (deg) => round(-deg)
+
+// Size of the box a w x h image needs once it has been rotated.
+const boundingBox = (w, h, deg) => {
+	const rad = deg * Math.PI / 180
+	const c = Math.abs(Math.cos(rad))
+	const s = Math.abs(Math.sin(rad))
+	return { w: round(w * c + h * s), h: round(w * s + h * c) }
+}
+
+const imageSrc = (item, dir) => {
+	if (item.src.startsWith('http')) {
+		return item.src
+	}
+	return BROWSER_IMAGE_DIR + item.src + '?dir=' + encodeURI(dir)
+}
+
+// Turns the measured image into the css needed to show it rotated and scaled.
+// The image is rotated about its centre inside a wrapper big enough to hold the
+// rotated result, so the document still scrolls as if the file itself had been
+// transformed.
+const geometry = (sh) => {
+	if (!sh || !sh.w || !sh.h) {
+		return null
+	}
+	const deg = cssRotation(sh.rotate)
+	const centre = {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		height: 'auto',
+		transform: `translate(-50%, -50%) rotate(${deg}deg)`
+	}
+
+	if (sh.style) {
+		// natural size, magnified by widthPercent
+		const iw = round(sh.w * sh.widthPercent / 100)
+		const ih = round(sh.h * sh.widthPercent / 100)
+		const box = boundingBox(iw, ih, sh.rotate)
+		return {
+			wrapper: { position: 'relative', width: `${box.w}px`, height: `${box.h}px` },
+			img: { ...centre, width: `${iw}px` }
+		}
+	}
+
+	// the rotated image is fitted to the width of the window
+	const box = boundingBox(sh.w, sh.h, sh.rotate)
+	return {
+		wrapper: { position: 'relative', width: '100%', aspectRatio: `${box.w} / ${box.h}` },
+		img: { ...centre, width: `${round(sh.w / box.w * 100)}%` }
+	}
+}
 const cloneImageStateListItem = (li) => {
 	const o = { ...li }
 	o.cfg = { ...li.cfg }
@@ -64,6 +122,20 @@ export default function Slideshow() {
 	const [imageState, setImageState] = useState(null)
 	const [loadCfg, setLoadCfg] = useState(false)
 	const [saveCfg, setSaveCfg] = useState(false)
+	// measurements and settings of the image currently painted, which is the
+	// previous one while the next file is still downloading
+	const [shown, setShown] = useState(null)
+	const imageStateRef = useRef(null)
+
+	const current = (imageState && !loadCfg && !saveCfg) ? imageState.list[currentIndex] : null
+	const curSrc = current ? imageSrc(current, imageState.cfg.dir) : null
+	const curRotate = current ? current.cfg.rotate : 0
+	const curWidthPercent = current ? current.cfg.widthPercent : 100
+	const curStyle = current ? current.cfg.style : false
+
+	useEffect(() => {
+		imageStateRef.current = imageState
+	}, [imageState])
 
 	const nextFavIdx = useCallback((idx, stuff) => {
 		let nextId = idx + 1
@@ -135,7 +207,7 @@ export default function Slideshow() {
 			return
 		}
 		const is = cloneImageState(imageState)
-		const newWidth = w === null ? 100 : is.list[currentIndex].cfg.widthPercent + w
+		const newWidth = w === null ? 100 : Math.max(10, is.list[currentIndex].cfg.widthPercent + w)
 		is.list[currentIndex].cfg.widthPercent = newWidth
 		setImageState(is)
 	}, [currentIndex, imageState])
@@ -227,14 +299,48 @@ export default function Slideshow() {
 		setImageState(is)
 	}, [currentIndex, imageState])
 
-	const onLoadHandler = useCallback(() => {
-		if (!imageState) {
+	const onLoadHandler = useCallback((event) => {
+		if (!curSrc) {
 			return
 		}
-		const scT = imageState.list[currentIndex].cfg.scroll.t
-		const scL = imageState.list[currentIndex].cfg.scroll.l
-		window.scrollTo({ left: scL, top: scT, behavior: 'instant' })
-	}, [currentIndex, imageState])
+		const img = event.currentTarget
+		setShown({
+			src: curSrc,
+			w: img.naturalWidth,
+			h: img.naturalHeight,
+			rotate: curRotate,
+			widthPercent: curWidthPercent,
+			style: curStyle
+		})
+	}, [curSrc, curRotate, curWidthPercent, curStyle])
+
+	const onErrorHandler = useCallback(() => {
+		if (!curSrc) {
+			return
+		}
+		setShown({ src: curSrc, w: 0, h: 0, rotate: curRotate, widthPercent: curWidthPercent, style: curStyle })
+	}, [curSrc, curRotate, curWidthPercent, curStyle])
+
+	// rotating or resizing no longer reloads the file, so the settings of the
+	// painted image are refreshed here instead of waiting for an onLoad
+	useEffect(() => {
+		setShown(s => (s && s.src === curSrc)
+			? { ...s, rotate: curRotate, widthPercent: curWidthPercent, style: curStyle }
+			: s)
+	}, [curSrc, curRotate, curWidthPercent, curStyle])
+
+	// put the window back where it was once the image is on screen at its
+	// final size, which is also what makes the saved scroll position work
+	useEffect(() => {
+		if (!curSrc || !shown || shown.src !== curSrc) {
+			return
+		}
+		const li = imageStateRef.current?.list?.[currentIndex]
+		if (!li) {
+			return
+		}
+		window.scrollTo({ left: li.cfg.scroll.l, top: li.cfg.scroll.t, behavior: 'instant' })
+	}, [shown, curSrc, currentIndex])
 
 	const loadObj = useCallback((obj, resetIndex = true) => {
 		setImageState(obj)
@@ -293,10 +399,6 @@ export default function Slideshow() {
 		}} />
 	}
 
-	const srcProps = {
-		style: {}
-	}
-
 	const thisOne = imageState.list[currentIndex]
 	const thisOneCfg = thisOne.cfg
 
@@ -307,26 +409,16 @@ export default function Slideshow() {
 	let style = thisOneCfg.style
 	let isFav = thisOne.fav === true
 
-	if (imageState.list[currentIndex].src.startsWith('http')) {
-		if (widthPercent !== 100) {
-			srcProps.style.width = widthPercent + '%'
-		}
-		if (rotate !== 0) {
-			srcProps.style.rotate = rotate + 'deg'
-		}
-		srcProps.src = thisOne.src
-	} else {
-		srcProps.src = BROWSER_IMAGE_DIR + thisOne.src + '?rotate=' + thisOneCfg.rotate + '&width=' + thisOneCfg.widthPercent + '&dir=' + encodeURI(imageState.cfg.dir)
-	}
+	// the file is always fetched untouched, every transformation is css
+	const geom = geometry(shown)
 
 	const imgProps = {
-		//src: BROWSER_IMAGE_DIR + images[currentIndex] + '?rotate=' + rotate + '&width=' + widthPercent,
-		//src: images[currentIndex],
-		...srcProps,
-		className: styleToClass(style),
+		src: curSrc,
+		style: geom ? geom.img : { width: '100%', height: 'auto' },
 		onClick: onClickHandler,
 		alt: `Slide ${currentIndex}`,
-		onLoad: onLoadHandler // reset timer
+		onLoad: onLoadHandler,
+		onError: onErrorHandler
 	}
 
 	// document.documentElement.scrollTop = imageState[currentIndex].cfg.scrollTop
@@ -363,7 +455,9 @@ export default function Slideshow() {
 			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex} />
 			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle} />}
 			<Status statusText={statusText} fav={isFav} />
-			<img {...imgProps} />
+			<div className={styleToClass(style)} style={geom ? geom.wrapper : undefined}>
+				<img {...imgProps} />
+			</div>
 		</div>
 	)
 }

@@ -4,7 +4,8 @@ import { useCallback } from 'react'
 
 const progressStyle = {
 	width: '100%',
-	position: 'fixed'
+	position: 'fixed',
+	zIndex: 10
 }
 
 export default function ProgressBar(props) {

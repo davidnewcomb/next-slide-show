@@ -3,11 +3,9 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import Jimp from 'jimp'
 
 const getExtn = (imagePath) => {
 	const ee = path.extname(imagePath).slice(1).toLowerCase()
-	console.log(`filename=${imagePath} extension=${ee}`)
 	if (ee === 'jpg') {
 		return 'jpeg'
 	}
@@ -15,23 +13,21 @@ const getExtn = (imagePath) => {
 }
 
 const fileToMimeType = (imagePath) => {
-	const ee = getExtn(imagePath)
-	return 'image/' + ee
+	return 'image/' + getExtn(imagePath)
 }
 
-export async function GET(request, props, response) {
+// Images are always served untouched. Rotation and scaling are applied in the
+// browser with css, so there is nothing to generate and nothing to cache here.
+// Any rotate/width query parameters left over in old links are ignored.
+export async function GET(request, props) {
 	const { searchParams } = new URL(request.url)
-	const rotate = +searchParams.get('rotate') ?? 0
-	const width = +searchParams.get('width') ?? 100
 	const urlText = searchParams.get('dir') ?? ''
 	const url = decodeURI(urlText)
 
-	const { params } = props
-
-	const { img } = params
+	const { img } = props.params
 
 	if (!img) {
-		return response.status(400).json({ error: 'Image name is required' })
+		return NextResponse.json({ error: 'Image name is required' }, { status: 400 })
 	}
 
 	const imagePath = path.join(url, img)
@@ -39,36 +35,20 @@ export async function GET(request, props, response) {
 	if (!fs.existsSync(imagePath)) {
 		const m = 'Image not found: ' + imagePath
 		console.log(m)
-		return response.status(404).json({ error: m })
+		return NextResponse.json({ error: m }, { status: 404 })
 	}
 
 	console.log('Load=' + imagePath)
 
-	let image
-	const ct = fileToMimeType(imagePath)
-
-	const cacheFile = `${imagePath}-w${width}-r${rotate}`
-	if (fs.existsSync(cacheFile)) {
-		console.log('found cache: ' + cacheFile)
-		image = fs.readFileSync(cacheFile)
-	} else {
-		image = fs.readFileSync(imagePath)
-		if (rotate > 0 || width !== 100) {
-			const lenna = await Jimp.read(image)
-			image = await lenna
-				.rotate(rotate)
-				.scale(width / 100)
-				.getBufferAsync(ct)
-			console.log(`saving cache: ${cacheFile} [${image.length} bytes]`)
-			fs.writeFileSync(cacheFile, image)
-			console.log(`saved cache: ${cacheFile} [${image.length} bytes]`)
-		}
-	}
+	const image = fs.readFileSync(imagePath)
 
 	return new NextResponse(image, {
 		status: 200,
 		headers: {
-			"Content-Type": ct
+			'Content-Type': fileToMimeType(imagePath),
+			// the same original is now re-requested for every transformation,
+			// so let the browser hold on to it
+			'Cache-Control': 'private, max-age=3600'
 		}
 	})
 }

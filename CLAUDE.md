@@ -4,7 +4,7 @@ Web based slide show which allows clients to resize, rotate, source images and r
 
 ## Tech stack
 
-JavaScript, NextJS 14.1, React 18, Bootstrap 5.3, Jimp 0.22
+JavaScript, NextJS 14.1, React 18, Bootstrap 5.3
 
 ## Configuraton File
 
@@ -46,6 +46,8 @@ A slide show configuration (json) file describes how to display the images in th
 
 User is presnted with a screen to load a configuration file.
 Each file is represented according to the list item configuration. There is a control panel on the slide show page to change these values.
-When the user increases the size of the image via shortcuts or clicking the source image is resize and reloaded. This new file is held in a cache file next to the original file with a suffix which describe those settings eg. red-arrow-01-12.jpg-w100-270 is red-arrow-01-12.jpg rotated 270 degress.
+Rotation and magnification happen in the browser with css. The server only ever serves the original file untouched (`/api/img/<name>?dir=<folder>`), nothing is generated or cached next to the images.
+The image is measured when it loads and then rotated about its centre inside a wrapper sized to the rotated bounding box, so the page scrolls as if the file itself had been transformed and the saved scroll position still lines up.
+Stored rotation is anti-clockwise (as jimp used to apply it server side), so the angle is negated for css, which turns clockwise. Old cfg files therefore look the same as before.
 
 

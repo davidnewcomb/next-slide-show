@@ -8,29 +8,13 @@ import ScreenShow from './ScreenShow'
 
 
 
+// Nothing is generated on the server any more, so this just walks the folder
+// and warms the browser cache with the original files.
 const formatForPreLoad = (obj) => {
 	const { cfg, list } = obj
 	const { dir } = cfg
 	const items = list.map((it, idx) => {
-
-		const { src, cfg } = it
-		const { rotate, widthPercent } = cfg
-
-		let url = `/api/img/${src}?dir=${dir}`
-		let qs = []
-		if (rotate !== 0) {
-			qs.push('rotate=' + rotate)
-		}
-		if (widthPercent) {
-			qs.push('width=' + widthPercent)
-		} else {
-			qs.push('width=100')
-		}
-
-		if (qs.length > 0) {
-			url += '&' + qs.join('&')
-		}
-
+		const url = `/api/img/${it.src}?dir=${dir}`
 		return { loaded: false, url: url, idx: idx }
 	})
 
