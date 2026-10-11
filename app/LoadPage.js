@@ -4,7 +4,7 @@ import LoadCfgFile from './load/LoadCfgFile'
 import PasteCfgFile from './load/PasteCfgFile'
 import GenerateCfgFile from './load/GenerateCfgFile'
 import PreLoadCfgFile from './load/PreLoadCfgFile'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 
 
 export default function LoadPage(props) {
@@ -20,13 +20,17 @@ export default function LoadPage(props) {
 			<h1>Load</h1>
 			<button onClick={() => close()}>Cancel</button>
 			<hr />
-			<LoadCfgFile loadObj={loadObj} close={close} filename={admin?.filename || ''} />
+			<Suspense fallback={null}>
+				<LoadCfgFile loadObj={loadObj} close={close} filename={admin?.filename || ''} />
+			</Suspense>
 			<hr />
 			<PasteCfgFile loadObj={loadObj} close={close} />
 			<hr />
 			<GenerateCfgFile loadObj={loadObj} close={close} cfg={cfg} admin={admin} />
 			<hr />
-			<PreLoadCfgFile />
+			<Suspense fallback={null}>
+				<PreLoadCfgFile />
+			</Suspense>
 		</div>
 	)
 }
