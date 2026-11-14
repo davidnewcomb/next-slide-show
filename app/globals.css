@@ -18,27 +18,10 @@
 	color: black;
 }
 
-.controlpanel-hor {
-	position: fixed;
-	display: flex;
-	border: 1px solid black;
-	padding: 5px;
-	top: 230px;
-	right: -180px;
-	background-color: white;
-	opacity: 0.75;
-	color: black;
-	rotate: 90deg;
-}
-
-.controlpanel-hor > div {
-	color: black;
-	font-size: 20;
-	text-decoration: none;
-	padding: 2px 2px;
-}
-
-.controlpanel-ver {
+/* One control panel, built once. The horizontal variant is the same panel
+   turned on its side - icons and all - so nothing inside it is rotated
+   separately. */
+.controlpanel {
 	position: fixed;
 	display: flex;
 	border: 1px solid black;
@@ -50,10 +33,36 @@
 	color: black;
 }
 
-.controlpanel-ver > div {
+.controlpanel-hor {
+	top: 230px;
+	right: -180px;
+	rotate: 90deg;
+}
+
+.controlpanel > div {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
 	color: black;
-	font-size: 20;
 	text-decoration: none;
+	cursor: pointer;
+}
+
+.controlpanelicon {
+	display: block;
+	width: 22px;
+	height: 22px;
+}
+
+.controlpaneloff {
+	stroke: red;
+}
+
+.controlpanelactive {
+	background-color: rgb(191, 245, 191);
 }
 
 .responsive {
