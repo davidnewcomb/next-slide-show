@@ -2,7 +2,6 @@
 
 import LoadCfgFile from './load/LoadCfgFile'
 import PasteCfgFile from './load/PasteCfgFile'
-import PreLoadCfgFile from './load/PreLoadCfgFile'
 import { useEffect } from 'react'
 
 
@@ -22,8 +21,6 @@ export default function LoadPage(props) {
 			<LoadCfgFile loadObj={loadObj} close={close} filename={admin?.filename || ''} />
 			<hr />
 			<PasteCfgFile loadObj={loadObj} close={close} />
-			<hr />
-			<PreLoadCfgFile />
 		</div>
 	)
 }

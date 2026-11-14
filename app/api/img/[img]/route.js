@@ -44,25 +44,15 @@ export async function GET(request, props, response) {
 
 	console.log('Load=' + imagePath)
 
-	let image
 	const ct = fileToMimeType(imagePath)
 
-	const cacheFile = `${imagePath}-w${width}-r${rotate}`
-	if (fs.existsSync(cacheFile)) {
-		console.log('found cache: ' + cacheFile)
-		image = fs.readFileSync(cacheFile)
-	} else {
-		image = fs.readFileSync(imagePath)
-		if (rotate > 0 || width !== 100) {
-			const lenna = await Jimp.read(image)
-			image = await lenna
-				.rotate(rotate)
-				.scale(width / 100)
-				.getBufferAsync(ct)
-			console.log(`saving cache: ${cacheFile} [${image.length} bytes]`)
-			fs.writeFileSync(cacheFile, image)
-			console.log(`saved cache: ${cacheFile} [${image.length} bytes]`)
-		}
+	let image = fs.readFileSync(imagePath)
+	if (rotate > 0 || width !== 100) {
+		const lenna = await Jimp.read(image)
+		image = await lenna
+			.rotate(rotate)
+			.scale(width / 100)
+			.getBufferAsync(ct)
 	}
 
 	return new NextResponse(image, {
