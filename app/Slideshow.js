@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
 	BROWSER_IMAGE_DIR, PAUSE,
 	SS_PAUSE,
@@ -12,13 +12,15 @@ import {
 	SS_CONTROL_PANEL, SS_CONTROL_PANEL_STYLE,
 	SS_BACK_CURSOR,
 	SS_FORWARD_CURSOR,
-	SS_CFG_DUP
+	SS_CFG_DUP,
+	SS_CFG_AUTO_SAVE
 } from './cfg'
 import ControlPanel from './ControlPanel'
 import Status from './Status'
 import ProgressBar from './ProgressBar'
 import SavePage from './SavePage'
 import LoadPage from './LoadPage'
+import { updateCfgFile } from './server'
 
 const PAUSED_FOREVER = 0
 
@@ -64,6 +66,42 @@ export default function Slideshow() {
 	const [imageState, setImageState] = useState(null)
 	const [loadCfg, setLoadCfg] = useState(false)
 	const [saveCfg, setSaveCfg] = useState(false)
+	const [autoSave, setAutoSave] = useState(false)
+	const [dirty, setDirty] = useState(false)
+	const [saveError, setSaveError] = useState(null)
+
+	// Every change to imageState bumps changeSeq. A save remembers the seq it
+	// wrote, so a change made while the write was in flight stays dirty.
+	const changeSeq = useRef(0)
+
+	const markChanged = useCallback(() => {
+		changeSeq.current += 1
+		setDirty(true)
+	}, [])
+
+	const saveNow = useCallback((is) => {
+		const filename = is?.admin?.filename
+		if (!filename) {
+			setSaveError('no filename - use the save page')
+			return
+		}
+		const seq = changeSeq.current
+		updateCfgFile(filename, is).then(() => {
+			if (changeSeq.current === seq) {
+				setDirty(false)
+			}
+			setSaveError(null)
+		}).catch((e) => {
+			setSaveError('save failed: ' + e.message)
+		})
+	}, [])
+
+	// Called immediately before moving to another slide.
+	const autoSaveBeforeTransition = useCallback(() => {
+		if (autoSave && dirty) {
+			saveNow(imageState)
+		}
+	}, [autoSave, dirty, imageState, saveNow])
 
 	const nextFavIdx = useCallback((idx, stuff) => {
 		let nextId = idx + 1
@@ -109,17 +147,19 @@ export default function Slideshow() {
 		if (!imageState) {
 			return
 		}
+		autoSaveBeforeTransition()
 		const nId = nextFavIdx(currentIndex, imageState.list)
 		setCurrentIndex(nId)
-	}, [currentIndex, imageState, nextFavIdx])
+	}, [currentIndex, imageState, nextFavIdx, autoSaveBeforeTransition])
 
 	const prevSlide = useCallback(() => {
 		if (!imageState) {
 			return
 		}
+		autoSaveBeforeTransition()
 		const nId = prevFavIdx(currentIndex, imageState.list)
 		setCurrentIndex(nId)
-	}, [currentIndex, imageState, prevFavIdx])
+	}, [currentIndex, imageState, prevFavIdx, autoSaveBeforeTransition])
 
 	const rotation = useCallback((deg) => {
 		if (!imageState) {
@@ -128,7 +168,8 @@ export default function Slideshow() {
 		const is = cloneImageState(imageState)
 		is.list[currentIndex].cfg.rotate = doRotation(is.list[currentIndex].cfg.rotate, deg)
 		setImageState(is)
-	}, [currentIndex, imageState])
+		markChanged()
+	}, [currentIndex, imageState, markChanged])
 
 	const width = useCallback((w) => {
 		if (!imageState) {
@@ -138,7 +179,8 @@ export default function Slideshow() {
 		const newWidth = w === null ? 100 : is.list[currentIndex].cfg.widthPercent + w
 		is.list[currentIndex].cfg.widthPercent = newWidth
 		setImageState(is)
-	}, [currentIndex, imageState])
+		markChanged()
+	}, [currentIndex, imageState, markChanged])
 
 	const toggleFavourite = useCallback(() => {
 		if (!imageState) {
@@ -147,7 +189,8 @@ export default function Slideshow() {
 		const is = cloneImageState(imageState)
 		is.list[currentIndex].fav = !is.list[currentIndex].fav
 		setImageState(is)
-	}, [currentIndex, imageState])
+		markChanged()
+	}, [currentIndex, imageState, markChanged])
 
 	const duplicate = useCallback(() => {
 		if (!imageState) {
@@ -157,7 +200,8 @@ export default function Slideshow() {
 		is.list.splice(currentIndex, 0, is.list[currentIndex])
 		setImageState(is)
 		setCurrentIndex(currentIndex + 1)
-	}, [currentIndex, imageState])
+		markChanged()
+	}, [currentIndex, imageState, markChanged])
 
 	const handleKeyPress = useCallback((event) => {
 
@@ -199,24 +243,35 @@ export default function Slideshow() {
 				setLoadCfg(false)
 			}
 			setSaveCfg(true)
+		} else if (event.key === SS_CFG_AUTO_SAVE) {
+			setAutoSave(it => !it)
 		} else if (event.key === SS_CONTROL_PANEL) {
 			setShowControlPanel(it => !it)
 		} else if (event.key === SS_CONTROL_PANEL_STYLE) {
 			setControlPanelStyle(it => !it)
 		}
-	}, [nextSlide, prevSlide, rotation, width, toggleFavourite, duplicate])
+	}, [nextSlide, prevSlide, rotation, width, toggleFavourite, duplicate, loadCfg, saveCfg])
 
 	const scrollHandler = useCallback(() => {
 		if (loadCfg || saveCfg) {
 			return
 		}
 		if (imageState) {
+			const t = parseInt(document.documentElement.scrollTop)
+			const l = parseInt(document.documentElement.scrollLeft)
+			const was = imageState.list[currentIndex].cfg.scroll
+			if (was.t === t && was.l === l) {
+				// onLoad scrolls the new slide into place, which fires a scroll
+				// event of its own. Nothing moved, so nothing changed.
+				return
+			}
 			const is = cloneImageState(imageState)
-			is.list[currentIndex].cfg.scroll = { t: parseInt(document.documentElement.scrollTop), l: parseInt(document.documentElement.scrollLeft) }
+			is.list[currentIndex].cfg.scroll = { t, l }
 			setImageState(is)
+			markChanged()
 		}
 
-	}, [currentIndex, imageState])
+	}, [currentIndex, imageState, markChanged])
 
 	const onClickHandler = useCallback(() => {
 		if (!imageState) {
@@ -225,7 +280,8 @@ export default function Slideshow() {
 		const is = cloneImageState(imageState)
 		is.list[currentIndex].cfg.style = !is.list[currentIndex].cfg.style
 		setImageState(is)
-	}, [currentIndex, imageState])
+		markChanged()
+	}, [currentIndex, imageState, markChanged])
 
 	const onLoadHandler = useCallback(() => {
 		if (!imageState) {
@@ -241,6 +297,9 @@ export default function Slideshow() {
 		if (resetIndex) {
 			setCurrentIndex(0)
 		}
+		changeSeq.current = 0
+		setDirty(false)
+		setSaveError(null)
 		//setTimeoutValue(PAUSE)
 	}, [])
 
@@ -343,6 +402,9 @@ export default function Slideshow() {
 		+ (scTop ? ' scT=' + scTop : '')
 		+ (scLeft ? ' scL=' + scLeft : '')
 		+ (isFav ? ' [fav]' : '')
+		+ (autoSave ? ' [autosave]' : '')
+		+ (dirty ? ' *' : '')
+		+ (saveError ? ' [' + saveError + ']' : '')
 
 	// Debug
 	if (false) {
@@ -361,7 +423,7 @@ export default function Slideshow() {
 	return (
 		<div>
 			<ProgressBar cur={currentIndex} max={max} setCurrentIndex={setCurrentIndex} />
-			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle} />}
+			{showControlPanel && <ControlPanel handleKeyPress={handleKeyPress} fav={isFav} controlPanelStyle={controlPanelStyle} autoSave={autoSave} />}
 			<Status statusText={statusText} fav={isFav} />
 			<img {...imgProps} />
 		</div>
