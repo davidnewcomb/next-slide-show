@@ -45,10 +45,6 @@ const generateCfgJson = (cfgFilename) => {
 
 	const obj = {
 		cfg: {
-			from: images.length,
-			to: 1,
-			padding: 0,
-			pattern: '',
 			dir: dir
 		},
 		list: [],
