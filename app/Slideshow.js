@@ -342,7 +342,7 @@ export default function Slideshow() {
 		return <LoadPage loadObj={loadObj} scrollHandlerController={scrollHandlerController} close={() => {
 			setLoadCfg(false)
 			setTimeoutValue(PAUSE)
-		}} cfg={imageState?.cfg} admin={imageState?.admin} />
+		}} admin={imageState?.admin} />
 	}
 
 	if (saveCfg) {
