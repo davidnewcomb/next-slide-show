@@ -3,7 +3,6 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import Jimp from 'jimp'
 
 const getExtn = (imagePath) => {
 	const ee = path.extname(imagePath).slice(1).toLowerCase()
@@ -21,8 +20,6 @@ const fileToMimeType = (imagePath) => {
 
 export async function GET(request, props, response) {
 	const { searchParams } = new URL(request.url)
-	const rotate = +searchParams.get('rotate') ?? 0
-	const width = +searchParams.get('width') ?? 100
 	const urlText = searchParams.get('dir') ?? ''
 	const url = decodeURI(urlText)
 
@@ -46,14 +43,9 @@ export async function GET(request, props, response) {
 
 	const ct = fileToMimeType(imagePath)
 
-	let image = fs.readFileSync(imagePath)
-	if (rotate > 0 || width !== 100) {
-		const lenna = await Jimp.read(image)
-		image = await lenna
-			.rotate(rotate)
-			.scale(width / 100)
-			.getBufferAsync(ct)
-	}
+	// The image is served exactly as it is on disk. Rotation and scaling are
+	// done in the browser.
+	const image = fs.readFileSync(imagePath)
 
 	return new NextResponse(image, {
 		status: 200,

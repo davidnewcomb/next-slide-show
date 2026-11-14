@@ -366,21 +366,21 @@ export default function Slideshow() {
 	let style = thisOneCfg.style
 	let isFav = thisOne.fav === true
 
-	if (imageState.list[currentIndex].src.startsWith('http')) {
-		if (widthPercent !== 100) {
-			srcProps.style.width = widthPercent + '%'
-		}
-		if (rotate !== 0) {
-			srcProps.style.rotate = rotate + 'deg'
-		}
+	// The image always comes down untouched; rotating and scaling happen here.
+	if (widthPercent !== 100) {
+		srcProps.style.width = widthPercent + '%'
+	}
+	if (rotate !== 0) {
+		srcProps.style.rotate = rotate + 'deg'
+	}
+
+	if (thisOne.src.startsWith('http')) {
 		srcProps.src = thisOne.src
 	} else {
-		srcProps.src = BROWSER_IMAGE_DIR + thisOne.src + '?rotate=' + thisOneCfg.rotate + '&width=' + thisOneCfg.widthPercent + '&dir=' + encodeURI(imageState.cfg.dir)
+		srcProps.src = BROWSER_IMAGE_DIR + thisOne.src + '?dir=' + encodeURI(imageState.cfg.dir)
 	}
 
 	const imgProps = {
-		//src: BROWSER_IMAGE_DIR + images[currentIndex] + '?rotate=' + rotate + '&width=' + widthPercent,
-		//src: images[currentIndex],
 		...srcProps,
 		className: styleToClass(style),
 		onClick: onClickHandler,
