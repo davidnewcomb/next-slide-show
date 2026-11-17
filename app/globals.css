@@ -51,6 +51,37 @@
 	cursor: pointer;
 }
 
+/* The drag tape down the left hand edge of the panel. The panel itself is
+   moved with the `translate` property, which is applied before the `rotate`
+   of the horizontal panel, so dragging follows the mouse either way round. */
+.controlpanel > .controlpaneltape {
+	width: 14px;
+	height: auto;
+	align-self: stretch;
+	flex: 0 0 auto;
+	margin-right: 4px;
+	border: 1px solid rgb(120, 120, 120);
+	background-color: rgb(225, 225, 225);
+	background-image: repeating-linear-gradient(
+		45deg,
+		rgba(0, 0, 0, 0.25) 0 2px,
+		rgba(0, 0, 0, 0) 2px 5px
+	);
+	cursor: grab;
+	touch-action: none;
+	user-select: none;
+}
+
+.controlpanel > .controlpaneltape:hover {
+	background-color: rgb(245, 245, 180);
+}
+
+.controlpanel > .controlpaneltapedrag,
+.controlpanel > .controlpaneltapedrag:hover {
+	cursor: grabbing;
+	background-color: magenta;
+}
+
 .controlpanelicon {
 	display: block;
 	width: 22px;
